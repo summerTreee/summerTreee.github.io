@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-05-13T14:09:23+08:00</updated>
+  <updated>2015-05-22T21:42:26+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -29,6 +29,8 @@
 <li>方便处理网络请求的公共逻辑。</li>
 </ul>
 
+
+<p>-</p>
 
 <h3>2、使用completionQueue</h3>
 
