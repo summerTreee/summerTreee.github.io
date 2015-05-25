@@ -99,6 +99,11 @@
 <!--more-->
 
 
+<p><img src="http://placekitten.com/890/280">
+<img class="left" src="http://placekitten.com/320/250" title="Place Kitten #2" >
+<img class="right" src="http://placekitten.com/300/500" width="150" height="250" title="Place Kitten #3" >
+<img class="right" src="http://placekitten.com/300/500" width="150" height="250" title="Place Kitten #4" alt="An image of a very cute kitten"></p>
+
 <h3>2、使用completionQueue</h3>
 
 <p>默认情况下<code>AFURLConnectionOperation</code>或者<code>AFHTTPRequestOperation</code>请求结束以后会在主线程将结果传递回来，如果你要将请求的结果做一些耗时的复杂的处理，就会<em>block</em>住主线程，所以这种情况下你就需要对请求的Operation传递<code>completionQueue</code>参数：</p>
