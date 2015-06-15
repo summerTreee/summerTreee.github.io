@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-05-27T10:20:16+08:00</updated>
+  <updated>2015-06-15T21:18:33+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -12,6 +12,34 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Xcode控制台打印CGRect]]></title>
+    <link href="http://summertreee.github.io/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/"/>
+    <updated>2015-06-15T21:15:58+08:00</updated>
+    <id>http://summertreee.github.io/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect</id>
+    <content type="html"><![CDATA[<p>在用Xcode调试开发的时候，我们经常需要在控制台打印某个视图的frame，以前的时候相当麻烦，但是从Xcode6.3以后，打印frame变得很简单：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// Before
+</span><span class='line'>(lldb) p (CGRect) [self frame]
+</span><span class='line'>(CGRect) $0 = (origin = (x = 0, y = 0), size = (width = 50, height = 100))
+</span><span class='line'> 
+</span><span class='line'>// After
+</span><span class='line'>(lldb) expr @import UIKit
+</span><span class='line'>(lldb) p self.frame
+</span><span class='line'>(CGRect) $1 = (origin = (x = 0, y = 0), size = (width = 50, height = 100))
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[AFNetworking2.0使用心得]]></title>
