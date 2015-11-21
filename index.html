@@ -102,62 +102,12 @@
 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
 </code></pre>
 
-<p>2、利用<code>UIWebView</code>实现电话拨打，会弹出拨打提示，并且拨打完成后会返回App内：</p>
-
-<pre><code>NSString *phone = @"131****1909";
-NSString *cleanedString =[[phone componentsSeparatedByCharactersInSet:[[NSCharacterSet characterSetWithCharactersInString:@"0123456789-+()"] invertedSet]] componentsJoinedByString:@""];
-NSString *escapedPhoneNumber = [cleanedString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-NSURL *telURL = [NSURL URLWithString:[NSString stringWithFormat:@"tel://%@",escapedPhoneNumber]];
-UIWebView *mCallWebview = [[UIWebView alloc] init] ;
-
-[self.view addSubview:mCallWebview];
-[mCallWebview loadRequest:[NSURLRequest requestWithURL:telURL]];
-</code></pre>
-
-<h4>二、检测通话时间</h4>
-
-<p>利用<code>CTCallCenter</code>我们可以检测在使用App期间拨打电话出去以及电话打入的时机，以及通话结束的时机。实现如下：</p>
-
-<pre><code> #import &lt;CoreTelephony/CTCallCenter.h&gt;
- #import &lt;CoreTelephony/CTCall.h&gt;
-
- @interface AppDelegate : UIResponder&lt;UIApplicationDelegate&gt;
- @property (nonatomic, strong) CTCallCenter *callCenter;
- @end
-
-@implementation AppDelegate
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-  self.callCenter = [[CTCallCenter alloc] init];
-  [self handleCall];
-  return YES;
-}
-
--(void)handleCall
-{
-   self.callCenter.callEventHandler = ^(CTCall *call) {
-    if ([call.callState isEqualToString: CTCallStateConnected])
-    {
-        NSLog(@"接通电话");
-    }
-    else if ([call.callState isEqualToString: CTCallStateDialing])
-    {
-        NSLog(@"发起呼叫");
-    }
-    else if ([call.callState isEqualToString: CTCallStateDisconnected])
-    {
-        NSLog(@"结束电话");
-    }
-    else if ([call.callState isEqualToString: CTCallStateIncoming])
-    {
-        NSLog(@"打入电话");
-    }
-   };
-}
-</code></pre>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">阅读全文 &rarr;</a>
+    </footer>
   
 
 
