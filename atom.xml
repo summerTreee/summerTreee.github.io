@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-11-22T22:32:53+08:00</updated>
+  <updated>2015-11-22T22:34:00+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -23,6 +23,11 @@
 <h3>1、图片+文字居中显示</h3>
 
 <p>很多时候我们都会遇到这样的需求：一张图片旁边接上一段文字，然后让他们相对于父视图居中显示，以前我的做法是先知道图片的尺寸，然后来计算他们相对于父视图中心的偏移量，再进行布局。需求的样式大致如下：</p>
+
+<!--more-->
+
+
+<p></p>
 
 <p><img src="http://summertreee.github.io/auto_layout_1_1.png" alt="大致效果" /></p>
 
@@ -56,9 +61,6 @@ UIView *limitView = [UIView new];
 }];
 }
 </code></pre>
-
-<!--more-->
-
 
 <h3>2、处理复合型布局</h3>
 
