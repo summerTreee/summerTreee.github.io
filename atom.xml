@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-11-22T23:00:52+08:00</updated>
+  <updated>2015-11-22T23:03:12+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -68,7 +68,7 @@ UIView *limitView = [UIView new];
 
 <p>如果只是将中间的绿色的视图hidden掉，是达不到这样的效果的：</p>
 
-<p><img src="http://summertreee.github.io/Users/baidu/octopress/source/images/auto_layout_1_3.png" alt="影藏中间的绿色视图" /></p>
+<p><img src="http://ww1.sinaimg.cn/mw690/8f7a6fe0jw1eya4nza0mfj208w0a8748.jpg" alt="影藏中间的绿色视图" /></p>
 
 <p>要达到这样的效果可以利用<code>MASConstraint</code>的<code>deactivate</code>和<code>activate</code>方法，他们的作用是让一个constraint<strong>不生效</strong>和<strong>生效</strong>，<code>Masonry</code>的每个Constraint都会产生一个<code>MASConstraint</code>，所以我们可以保存一些需要改变的constraint，在需要的时候使用这两个方法。</p>
 
