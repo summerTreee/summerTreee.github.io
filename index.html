@@ -100,6 +100,35 @@
 
 <p>但是这样的缺点是每次都需要去据算距离中心的偏移量，很麻烦，对于这种情况其实可以添加一个辅助视图，让这个辅助视图的左边等于图片的左边，右边和文字的右边对齐，然后这个辅助视图相对于父视图居中显示就行。</p>
 
+<pre><code>- (void)layoutImageAndText {
+UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"av_colum"]];
+[self.view addSubview:imageView];
+[imageView mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.top.equalTo(@10);
+    make.left.greaterThanOrEqualTo(self.view);
+}];
+
+UILabel *label = [UILabel new];
+label.text = @"梁朝伟";
+label.font = [UIFont systemFontOfSize:17];
+label.textAlignment = NSTextAlignmentLeft;
+label.backgroundColor = [UIColor clearColor];
+[self.view addSubview:label];
+[label mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.left.equalTo(imageView.mas_right).offset(5);
+    make.centerY.equalTo(imageView);
+}];
+
+UIView *limitView = [UIView new];
+[self.view addSubview:limitView];
+[limitView mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.left.equalTo(imageView);//和图片左边对齐
+    make.right.equalTo(label);//和文字右边对齐
+    make.centerX.equalTo(self.view);//指定limitView居中显示
+}];
+}
+</code></pre>
+
 </div>
   
   

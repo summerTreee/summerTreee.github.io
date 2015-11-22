@@ -97,9 +97,6 @@
 
 <p>但是这样的缺点是每次都需要去据算距离中心的偏移量，很麻烦，对于这种情况其实可以添加一个辅助视图，让这个辅助视图的左边等于图片的左边，右边和文字的右边对齐，然后这个辅助视图相对于父视图居中显示就行。</p>
 
-<!--more-->
-
-
 <pre><code>- (void)layoutImageAndText {
 UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"av_colum"]];
 [self.view addSubview:imageView];
@@ -128,6 +125,9 @@ UIView *limitView = [UIView new];
 }];
 }
 </code></pre>
+
+<!--more-->
+
 
 <h3>2、处理复合型布局</h3>
 
