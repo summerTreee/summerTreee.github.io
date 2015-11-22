@@ -89,16 +89,16 @@
 
 <div class="entry-content"><p>目前由于Apple自己的Auto Layout写法比较啰嗦，所以出现了许多对原生语句进行封装的第三方开发库，这其中<code>Masonry</code>广受开发者的喜爱，所以以下都以<code>Masonry</code>来做演示说明，但对于Apple原生的写法也同样适用。</p>
 
-<!--more-->
-
-
 <h3>1、1图片+文字居中显示</h3>
 
 <p>很多时候我们都会遇到这样的需求：一张图片旁边接上一段文字，然后让他们相对于父视图居中显示，以前我的做法是先知道图片的尺寸，然后来计算他们相对于父视图中心的偏移量，再进行布局。需求的样式大致如下：</p>
 
-<p><img src="/auto_layout_1_1.png" alt="大致效果" /></p>
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0jw1eya4nyp8qbj208w014a9v.jpg" alt="大致效果" /></p>
 
 <p>但是这样的缺点是每次都需要去据算距离中心的偏移量，很麻烦，对于这种情况其实可以添加一个辅助视图，让这个辅助视图的左边等于图片的左边，右边和文字的右边对齐，然后这个辅助视图相对于父视图居中显示就行。</p>
+
+<!--more-->
+
 
 <pre><code>- (void)layoutImageAndText {
 UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"av_colum"]];
@@ -133,7 +133,7 @@ UIView *limitView = [UIView new];
 
 <p>直接上图说明需求，页面上有四个可见的视图：红、绿、蓝三个<code>UIView</code>，最下面是一个<code>UIButton</code>,想要达到的效果是点击button触发事件将中间的绿色视图隐藏，下面的蓝色视图和button移动到红色视图下，我们想要的效果如下：</p>
 
-<p><img src="/Users/baidu/octopress/source/images/auto_layout_1_2.gif" alt="需要的效果" /></p>
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0jw1eya4nz1i8hg208p0bjmxi.gif" alt="需要的效果" /></p>
 
 <p>如果只是将中间的绿色的视图hidden掉，是达不到这样的效果的：</p>
 
@@ -223,15 +223,15 @@ isActive = !isActive;
 
 <p>1、选中<code>Main.storyboard</code>,如下图所示，选取的时候按下<code>option+shift</code>按键。</p>
 
-<p><img src="/Users/baidu/octopress/source/images/auto_layout_1_4.png" alt="选择storyboard" /></p>
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0jw1eya4nzk6ywj20b204p74o.jpg" alt="选择storyboard" /></p>
 
 <p>2、选取<code>Preview</code>后会出来如下的界面，选择界面右边的<code>+</code>号，按<code>回车</code>。</p>
 
-<p><img src="/Users/baidu/octopress/source/images/auto_layout_1_6.png" alt="image" /></p>
+<p><img src="http://ww1.sinaimg.cn/mw690/8f7a6fe0jw1eya4nzzeuxj20bc05daae.jpg" alt="image" /></p>
 
 <p>3、通过步骤<code>2</code>后，会出现以下的界面：</p>
 
-<p><img src="/Users/baidu/Desktop/66.png" height="520" width="500" alt="Preview界面" /></p>
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0jw1eya4o08srqj20f70gh0t6.jpg" height="520" width="500" alt="Preview界面" /></p>
 
 <p>关键的几个地方我都用红方框圈了起来，左下角的<code>+</code>能模拟不同的设备，中间的红框部位可以模拟设备的旋转，
 右下角的<code>English</code>部位可以模拟布局中的文学信息双倍后的布局表现，这几个功能都非常的方便。</p>
