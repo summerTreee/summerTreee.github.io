@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-11-22T22:25:26+08:00</updated>
+  <updated>2015-11-22T22:30:19+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -24,9 +24,12 @@
 
 <p>很多时候我们都会遇到这样的需求：一张图片旁边接上一段文字，然后让他们相对于父视图居中显示，以前我的做法是先知道图片的尺寸，然后来计算他们相对于父视图中心的偏移量，再进行布局。需求的样式大致如下：</p>
 
-<p><img src="http://summertreee.github.io/Users/baidu/Desktop/yangshi.png" alt="大致效果" /></p>
+<p><img src="http://summertreee.github.io/Users/baidu/octopress/source/images/auto_layout_1_1.png" alt="大致效果" /></p>
 
 <p>但是这样的缺点是每次都需要去据算距离中心的偏移量，很麻烦，对于这种情况其实可以添加一个辅助视图，让这个辅助视图的左边等于图片的左边，右边和文字的右边对齐，然后这个辅助视图相对于父视图居中显示就行。</p>
+
+<!--more-->
+
 
 <pre><code>- (void)layoutImageAndText {
 UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"av_colum"]];
@@ -61,11 +64,11 @@ UIView *limitView = [UIView new];
 
 <p>直接上图说明需求，页面上有四个可见的视图：红、绿、蓝三个<code>UIView</code>，最下面是一个<code>UIButton</code>,想要达到的效果是点击button触发事件将中间的绿色视图隐藏，下面的蓝色视图和button移动到红色视图下，我们想要的效果如下：</p>
 
-<p><img src="http://summertreee.github.io/Users/baidu/Desktop/3.gif" alt="需要的效果" /></p>
+<p><img src="http://summertreee.github.io/Users/baidu/octopress/source/images/auto_layout_1_2.gif" alt="需要的效果" /></p>
 
 <p>如果只是将中间的绿色的视图hidden掉，是达不到这样的效果的：</p>
 
-<p><img src="http://summertreee.github.io/Users/baidu/Desktop/33.png" alt="影藏中间的绿色视图" /></p>
+<p><img src="http://summertreee.github.io/Users/baidu/octopress/source/images/auto_layout_1_3.png" alt="影藏中间的绿色视图" /></p>
 
 <p>要达到这样的效果可以利用<code>MASConstraint</code>的<code>deactivate</code>和<code>activate</code>方法，他们的作用是让一个constraint<strong>不生效</strong>和<strong>生效</strong>，<code>Masonry</code>的每个Constraint都会产生一个<code>MASConstraint</code>，所以我们可以保存一些需要改变的constraint，在需要的时候使用这两个方法。</p>
 
@@ -151,11 +154,11 @@ isActive = !isActive;
 
 <p>1、选中<code>Main.storyboard</code>,如下图所示，选取的时候按下<code>option+shift</code>按键。</p>
 
-<p><img src="http://summertreee.github.io/Users/baidu/Desktop/44.png" alt="选择storyboard" /></p>
+<p><img src="http://summertreee.github.io/Users/baidu/octopress/source/images/auto_layout_1_4.png" alt="选择storyboard" /></p>
 
 <p>2、选取<code>Preview</code>后会出来如下的界面，选择界面右边的<code>+</code>号，按<code>回车</code>。</p>
 
-<p><img src="http://summertreee.github.io/Users/baidu/Desktop/55.png" alt="image" /></p>
+<p><img src="http://summertreee.github.io/Users/baidu/octopress/source/images/auto_layout_1_6.png" alt="image" /></p>
 
 <p>3、通过步骤<code>2</code>后，会出现以下的界面：</p>
 
