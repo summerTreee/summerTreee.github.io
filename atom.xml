@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-11-22T22:46:50+08:00</updated>
+  <updated>2015-11-22T22:47:59+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -178,9 +178,11 @@ isActive = !isActive;
 
 <h4>一、拨打电话</h4>
 
-<p>在App内发起电话拨打主要有两种方式：
-<img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0jw1eya4nyp8qbj208w014a9v.jpg" alt="大致效果" />
-1、利用这种方式发起的电话拨打，通话结束后不会直接返回App内，而是停留在通信录里面：</p>
+<p>在App内发起电话拨打主要有两种方式：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0jw1eya4nyp8qbj208w014a9v.jpg" alt="大致效果" /></p>
+
+<p>1、利用这种方式发起的电话拨打，通话结束后不会直接返回App内，而是停留在通信录里面：</p>
 
 <pre><code> NSString *str = [[NSString alloc] initWithFormat:@"tel:%@",@"131xxxx1909"];
 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
