@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-11-22T22:49:32+08:00</updated>
+  <updated>2015-11-22T22:54:32+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -166,6 +166,83 @@ isActive = !isActive;
 
 <p>关键的几个地方我都用红方框圈了起来，左下角的<code>+</code>能模拟不同的设备，中间的红框部位可以模拟设备的旋转，
 右下角的<code>English</code>部位可以模拟布局中的文学信息双倍后的布局表现，这几个功能都非常的方便。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[App中拨打电话一点小总结]]></title>
+    <link href="http://summertreee.github.io/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/"/>
+    <updated>2015-08-23T12:27:08+08:00</updated>
+    <id>http://summertreee.github.io/blog/2015/08/23/appzhong-bo-da-dian-hua-[?]-dian-xiao-zong-jie</id>
+    <content type="html"><![CDATA[<h3>App内发起电话拨打的一点小技巧</h3>
+
+<h4>一、拨打电话</h4>
+
+<p>在App内发起电话拨打主要有两种方式：</p>
+
+<p>1、利用这种方式发起的电话拨打，通话结束后不会直接返回App内，而是停留在通信录里面：</p>
+
+<pre><code> NSString *str = [[NSString alloc] initWithFormat:@"tel:%@",@"131xxxx1909"];
+[[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
+</code></pre>
+
+<!--more-->
+
+
+<p>2、利用<code>UIWebView</code>实现电话拨打，会弹出拨打提示，并且拨打完成后会返回App内：</p>
+
+<pre><code>NSString *phone = @"131****1909";
+NSString *cleanedString =[[phone componentsSeparatedByCharactersInSet:[[NSCharacterSet characterSetWithCharactersInString:@"0123456789-+()"] invertedSet]] componentsJoinedByString:@""];
+NSString *escapedPhoneNumber = [cleanedString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+NSURL *telURL = [NSURL URLWithString:[NSString stringWithFormat:@"tel://%@",escapedPhoneNumber]];
+UIWebView *mCallWebview = [[UIWebView alloc] init] ;
+
+[self.view addSubview:mCallWebview];
+[mCallWebview loadRequest:[NSURLRequest requestWithURL:telURL]];
+</code></pre>
+
+<h4>二、检测通话时间</h4>
+
+<p>利用<code>CTCallCenter</code>我们可以检测在使用App期间拨打电话出去以及电话打入的时机，以及通话结束的时机。实现如下：</p>
+
+<pre><code> #import &lt;CoreTelephony/CTCallCenter.h&gt;
+ #import &lt;CoreTelephony/CTCall.h&gt;
+
+ @interface AppDelegate : UIResponder&lt;UIApplicationDelegate&gt;
+ @property (nonatomic, strong) CTCallCenter *callCenter;
+ @end
+
+@implementation AppDelegate
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+  self.callCenter = [[CTCallCenter alloc] init];
+  [self handleCall];
+  return YES;
+}
+
+-(void)handleCall
+{
+   self.callCenter.callEventHandler = ^(CTCall *call) {
+    if ([call.callState isEqualToString: CTCallStateConnected])
+    {
+        NSLog(@"接通电话");
+    }
+    else if ([call.callState isEqualToString: CTCallStateDialing])
+    {
+        NSLog(@"发起呼叫");
+    }
+    else if ([call.callState isEqualToString: CTCallStateDisconnected])
+    {
+        NSLog(@"结束电话");
+    }
+    else if ([call.callState isEqualToString: CTCallStateIncoming])
+    {
+        NSLog(@"打入电话");
+    }
+   };
+}
+</code></pre>
 ]]></content>
   </entry>
   
