@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-12-13T17:15:01+08:00</updated>
+  <updated>2015-12-13T17:18:49+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -21,6 +21,9 @@
     <content type="html"><![CDATA[<p>在Auto Layout的使用中，有两个很重要的布局概念：<code>Content Compression Resistance</code>和<code>Content Hugging</code>，从字面的翻译我们大概可以分别翻译为：<code>压缩阻力</code>以及<code>内容吸附</code>。但是光从字面意思来理解很难知道它们如何使用以及确切的设计意图。我最开始也是很迷糊而且在使用Auto Layout的过程中也没有使用过它们，直到最近稍稍研究了一下，发现它们的作用甚是巨大，所以我为了加深记忆，把我最近学习到的关于它们的概念在此稍作整理加以记录。</p>
 
 <blockquote><p>注：以下为了表述方便，将<code>Content Compression Resistance</code>记为<code>压缩阻力</code>，将<code>Content Hugging</code>记为<code>内容吸附</code>。</p></blockquote>
+
+<!--more-->
+
 
 <h4>Content Compression Resistance</h4>
 
