@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-12-13T17:18:49+08:00</updated>
+  <updated>2015-12-28T13:56:02+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -12,6 +12,35 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Classes and Metaclasses]]></title>
+    <link href="http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses/"/>
+    <updated>2015-12-28T13:53:36+08:00</updated>
+    <id>http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses</id>
+    <content type="html"><![CDATA[<p>这是一篇译文，原文<a href="http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html">在这里</a>，水平有限，翻译难免有错误的地方。</p>
+
+<p><code>Objective-C</code>是一个基于类别对象的系统。每一个对象都是某个类的实例，对象的<code>isa</code>指向它自己的类(Class),这个类描述了该对象所有的数据信息：开辟的空间大小，成员变量类型以及其他信息的排列，这个类同样也描述了该对象可以执行的一些行为：可以响应哪些<code>selector</code>以及它自己实例方法的实现。</p>
+
+<p>类的方法列表里面其实就是该类的所有实例方法的集合，通俗的讲就是该对象可以响应的所有<code>selectors</code>。当你向一个类发送消息时，会通过<code>objc_msgSend()</code>去查找它自身的类的方法列表(如果它有父类的话，也会在它的父类方法列表中去查找)来决定调用哪一个方法。</p>
+
+<!--more-->
+
+
+<p><code>Objective-C</code>的每一个类也是一个对象，它也有<code>isa</code>指针以及其他的一些信息，同样它也能响应<code>selector</code>，当你调用类方法时，比如：<code>[NSObject alloc]</code>，其实你是在向该类发送消息。</p>
+
+<p>上面说了，类也是一个对象，那它必定也是其他某一个类的一个实例，这就是<code>metaclass</code>，<code>metaclass</code>里面存放了类对象的所有信息，类和<code>metaclass</code>的关系就和刚才上面讲的实例对象和该实例的类的关系一样，<code>metaclass</code>的方法列表里面存放的该类对象能够响应的方法。当你向一个类(这个类是某个metaclass的一个实例对象)发送一个消息时，<code>objc_msgSend()</code>回去遍历<code>metaclass</code>的方法列表，如果它有父类的话，同样也会遍历父类的所有方法列表，从而决定调用哪一个方法。类方法的定义存放与类对象的<code>metaclass</code>，与之相对应的是实例方法的定义存放于实例对象对应的类里面。</p>
+
+<p><code>metaclass</code>究竟是个啥？它也是一直向下的吗？NO，一个<code>metaclass</code>又是某个类的根类的<code>metaclass</code>实例对象，根<code>metaclass</code>又是它自身的一个实例对象，在这里<code>isa</code>指针的指向形成了一个环：实例对象->类->metaclass->根metaclass->它自己(根metaclass)，在实际的使用中我们很少和metaclass直接打交道。</p>
+
+<p><code>metaclass</code>的父类和类的父类直接形成了两条平行线，所有类方法的继承类似于实例方法的继承，并且根<code>metaclass</code>的父类就是根类，所以每个类对象都能响应根类的实例方法，最后需要说一下的是一个类对象是它根类或者根类的一个子类的实例。</p>
+
+<p>是不是觉得有些迷惑，下面的图或许能给你一点帮助，你需要记住的是，当向一个对象发送任何消息是，都是从该对象的<code>isa</code>指针开始，然后按着它的父类一直寻找，直到找到合适的方法去调用，实例方法定义在类里面，类方法定义在<code>metaclass</code>和根类里面。<br/>
+<img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0jw1ezfb7ybjzqj20gw0hm40e.jpg" alt="image" /></p>
+
+<p><code>Objective-C</code>为了它的实用性，将类方法由<code>metaclass</code>管理，但另一方面它又想把<code>metaclass</code>影藏起来，例如<code>[NSObject class]</code>和<code>[NSObject self]</code>是完全等价的，其实它这个时候是返回的<code>metaclass</code>，也就是<code>NSObject-&gt;isa</code>所指向的。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ContentCompressionResistance和ContentHugging详解]]></title>

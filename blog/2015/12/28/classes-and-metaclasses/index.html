@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Classes and Metaclasses - 夏树正茂</title>
+  <meta name="author" content="梁炜V">
+
+  
+  <meta name="description" content="这是一篇译文，原文在这里，水平有限，翻译难免有错误的地方。 Objective-C是一个基于类别对象的系统。每一个对象都是某个类的实例，对象的isa指向它自己的类(Class),这个类描述了该对象所有的数据信息：开辟的空间大小，成员变量类型以及其他信息的排列， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="夏树正茂" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">夏树正茂</a></h1>
+  
+    <h2>花有重开日，人无再少年.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="订阅 RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="summertreee.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="搜索"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Classes and Metaclasses</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-28T13:53:36+08:00'><span class='date'>2015 年12 月28 日</span> <span class='time'>1:53 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>这是一篇译文，原文<a href="http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html">在这里</a>，水平有限，翻译难免有错误的地方。</p>
+
+<p><code>Objective-C</code>是一个基于类别对象的系统。每一个对象都是某个类的实例，对象的<code>isa</code>指向它自己的类(Class),这个类描述了该对象所有的数据信息：开辟的空间大小，成员变量类型以及其他信息的排列，这个类同样也描述了该对象可以执行的一些行为：可以响应哪些<code>selector</code>以及它自己实例方法的实现。</p>
+
+<p>类的方法列表里面其实就是该类的所有实例方法的集合，通俗的讲就是该对象可以响应的所有<code>selectors</code>。当你向一个类发送消息时，会通过<code>objc_msgSend()</code>去查找它自身的类的方法列表(如果它有父类的话，也会在它的父类方法列表中去查找)来决定调用哪一个方法。</p>
+
+<!--more-->
+
+
+<p><code>Objective-C</code>的每一个类也是一个对象，它也有<code>isa</code>指针以及其他的一些信息，同样它也能响应<code>selector</code>，当你调用类方法时，比如：<code>[NSObject alloc]</code>，其实你是在向该类发送消息。</p>
+
+<p>上面说了，类也是一个对象，那它必定也是其他某一个类的一个实例，这就是<code>metaclass</code>，<code>metaclass</code>里面存放了类对象的所有信息，类和<code>metaclass</code>的关系就和刚才上面讲的实例对象和该实例的类的关系一样，<code>metaclass</code>的方法列表里面存放的该类对象能够响应的方法。当你向一个类(这个类是某个metaclass的一个实例对象)发送一个消息时，<code>objc_msgSend()</code>回去遍历<code>metaclass</code>的方法列表，如果它有父类的话，同样也会遍历父类的所有方法列表，从而决定调用哪一个方法。类方法的定义存放与类对象的<code>metaclass</code>，与之相对应的是实例方法的定义存放于实例对象对应的类里面。</p>
+
+<p><code>metaclass</code>究竟是个啥？它也是一直向下的吗？NO，一个<code>metaclass</code>又是某个类的根类的<code>metaclass</code>实例对象，根<code>metaclass</code>又是它自身的一个实例对象，在这里<code>isa</code>指针的指向形成了一个环：实例对象->类->metaclass->根metaclass->它自己(根metaclass)，在实际的使用中我们很少和metaclass直接打交道。</p>
+
+<p><code>metaclass</code>的父类和类的父类直接形成了两条平行线，所有类方法的继承类似于实例方法的继承，并且根<code>metaclass</code>的父类就是根类，所以每个类对象都能响应根类的实例方法，最后需要说一下的是一个类对象是它根类或者根类的一个子类的实例。</p>
+
+<p>是不是觉得有些迷惑，下面的图或许能给你一点帮助，你需要记住的是，当向一个对象发送任何消息是，都是从该对象的<code>isa</code>指针开始，然后按着它的父类一直寻找，直到找到合适的方法去调用，实例方法定义在类里面，类方法定义在<code>metaclass</code>和根类里面。<br/>
+<img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0jw1ezfb7ybjzqj20gw0hm40e.jpg" alt="image" /></p>
+
+<p><code>Objective-C</code>为了它的实用性，将类方法由<code>metaclass</code>管理，但另一方面它又想把<code>metaclass</code>影藏起来，例如<code>[NSObject class]</code>和<code>[NSObject self]</code>是完全等价的，其实它这个时候是返回的<code>metaclass</code>，也就是<code>NSObject-&gt;isa</code>所指向的。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">梁炜V</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-12-28T13:53:36+08:00'><span class='date'>2015 年12 月28 日</span> <span class='time'>1:53 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses/" data-via="" data-counturl="http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/" title="Previous Post: ContentCompressionResistance和ContentHugging详解">&laquo; ContentCompressionResistance和ContentHugging详解</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>最新文章</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/28/classes-and-metaclasses/">Classes and Metaclasses</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/">ContentCompressionResistance和ContentHugging详解</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/22/auto-layoutshi-yong-xiao-ji-qiao/">Auto Layout使用小技巧</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">App中拨打电话一点小总结</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/">Xcode控制台打印CGRect</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 梁炜V -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'summertreee';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses/';
+        var disqus_url = 'http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
