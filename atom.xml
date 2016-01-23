@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2016-01-23T20:13:57+08:00</updated>
+  <updated>2016-01-23T20:19:23+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -50,7 +50,7 @@
 
 <p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f09onhbzvjj20h20aydj0.jpg" alt="image" /></p>
 
-<h4>4、定义Preprocessor Macros</h4>
+<h4>3、定义Preprocessor Macros</h4>
 
 <p>现在我们的工程里面同时包含了两个<code>Target</code>，现在工程里面的类是这两个<code>Target</code>公用的，如果你想在一个类里面区分是<code>MultipleTargetsA</code>还是<code>MultipleTargetsB</code>，这时你就需要用到<code>Preprocessor Macros</code>了，它的定义很简单，选中一个<code>Target</code>，然后在<code>Build Settings</code>里面搜索<code>Preprocessor Macros</code>一项，然后在里面添加表明是<code>MultipleTargetsA</code>的宏：</p>
 
@@ -69,15 +69,15 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>- (void)someFunction
 </span><span class='line'>{
 </span><span class='line'>#ifdef MultipleTargetsA
-</span><span class='line'>    NSLog(@"This is Target MultipleTargetsA!");
+</span><span class='line'>    NSLog(@"Build For Target MultipleTargetsA!");
 </span><span class='line'>#else
-</span><span class='line'>    NSLog(@"This is Target MultipleTargetsB!");
+</span><span class='line'>    NSLog(@"Build For Target MultipleTargetsB!");
 </span><span class='line'>#endif
 </span><span class='line'>}
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h4>5、修改Scheme</h4>
+<h4>4、修改Scheme</h4>
 
 <p>现在<code>MultipleTargetsB</code>的<code>Scheme</code>还是<code>MultipleTargetsA copy</code>:</p>
 
@@ -87,7 +87,7 @@
 
 <p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f09onj571gj20m00d4dh4.jpg" alt="image" /></p>
 
-<h4>6、资源文件和类文件</h4>
+<h4>5、资源文件和类文件</h4>
 
 <p>上面说了几个<code>APP</code>%90是相同的，不同的地方的资源文件和类文件如果要加以区分，比如<code>A.m</code>类属于<code>MultipleTargetsA</code>而不属于<code>MultipleTargetsB</code>，这时我们可以利用<code>Xcode</code>的<code>Target Membership</code>功能，来选择该类属于哪个<code>Target</code>。</p>
 
