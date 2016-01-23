@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2015-12-28T13:56:02+08:00</updated>
+  <updated>2016-01-23T20:13:57+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -12,6 +12,90 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[iOS中如何在一个工程创建多个App]]></title>
+    <link href="http://summertreee.github.io/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/"/>
+    <updated>2016-01-23T20:11:40+08:00</updated>
+    <id>http://summertreee.github.io/blog/2016/01/23/ioszhong-ru-he-zai-[?]-ge-gong-cheng-chuang-jian-duo-ge-app</id>
+    <content type="html"><![CDATA[<p>一般情况下，我们是一个App应用对应一个<code>Xcode Project</code>，但是如果你需要同时开发多个产品，而这些产品90%的数据结构以及交互方式都一样，呈现在用户面前的这两个产品，最大的不一样就是UI元素以及某些配色时，如果这个时候还是一个App一个<code>Xcode Project</code>，普遍的做法是：</p>
+
+<p>你会先开发完成一个产品，然后在复制到其他的产品中，非常的麻烦而且效率很低，你需要一个一个文件去比对。如果你使用模块的方式，开发完一个模块，然后再利用<code>Pod</code>的方式导入到其他产品中，虽然这样可行，但是涉及到产品的迭代开发以及产品的随时会变的交互，模块的细化分很难实现。</p>
+
+<p>如果你也面临这样的问题，不放考虑一下下面讲的<code>一个工程来开发多个App</code>：</p>
+
+<!--more-->
+
+
+<h4>1、创建新的Target</h4>
+
+<p>如果现在你已经有个一个产品叫<code>MultipleTargetA</code>，如下图所示：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f09onfv2lnj20e709xabz.jpg" alt="image" /></p>
+
+<p>这时你想添加一个叫<code>MultipleTargetB</code>的产品，你需要做的是按如下的步奏进行创建：
+选择<code>Project -&gt; Targets -&gt; 右击MultipleTargetsA -&gt; 选择Duplicate</code>，这时我们就按照<code>MultipleTargetsA</code>复制了一个产品<code>MultipleTargetsA copy</code>，并且你会看到多出了一个文件<code>MultipleTargetsA copy-Info.plist</code>，如下图所示：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f09onggesdj20cr0b8q53.jpg" alt="image" /></p>
+
+<p>将<strong>TARGETS</strong>里面的<code>MultipleTargetsA copy</code>改名为<code>MultipleTargetsB</code>（选中回车进入编辑）。</p>
+
+<h4>2、编辑plist文件</h4>
+
+<p>上面讲到了当我们创建新的<code>Target</code>后会多出一个<code>MultipleTargetsA copy-Info.plist</code>文件，这个<code>plist</code>文件就是控制<code>MultipleTargetsB</code>的名称，版本等信息的文件，我们为了统一将他改为<code>MultipleTargetsB-Info.plist</code>，在修改名字之前你需要在<code>MultipleTargetsB</code>的<code>Build Settings</code>中找到<code>MultipleTargetsA copy-Info.plist</code>一项，待会儿我们修改完这个<code>plist</code>文件以后，还需要在这里填入它正切的位置信息。这样程序执行时才能找到它，不然程序是不能通过编译的：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f09ongryr7j20oq0algnp.jpg" alt="image" /></p>
+
+<p>处理完上面的操作后，程序能正常通过编译后我们还需要修改<code>plist</code>文件里面的一下符合我们预期的信息：</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f09onhbzvjj20h20aydj0.jpg" alt="image" /></p>
+
+<h4>4、定义Preprocessor Macros</h4>
+
+<p>现在我们的工程里面同时包含了两个<code>Target</code>，现在工程里面的类是这两个<code>Target</code>公用的，如果你想在一个类里面区分是<code>MultipleTargetsA</code>还是<code>MultipleTargetsB</code>，这时你就需要用到<code>Preprocessor Macros</code>了，它的定义很简单，选中一个<code>Target</code>，然后在<code>Build Settings</code>里面搜索<code>Preprocessor Macros</code>一项，然后在里面添加表明是<code>MultipleTargetsA</code>的宏：</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f09oni1sa6j20ol0fbwhe.jpg" alt="image" /></p>
+
+<p>假如我们为<code>MultipleTargetsA</code>和<code>MultipleTargetsB</code>分别按如上步奏添加了标识：<code>MultipleTargetsA</code>和<code>MultipleTargetsB</code>,那在某个类里面判断现在编译的目标是哪个<code>Target</code>就变得简单了</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)someFunction
+</span><span class='line'>{
+</span><span class='line'>#ifdef MultipleTargetsA
+</span><span class='line'>    NSLog(@"This is Target MultipleTargetsA!");
+</span><span class='line'>#else
+</span><span class='line'>    NSLog(@"This is Target MultipleTargetsB!");
+</span><span class='line'>#endif
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>5、修改Scheme</h4>
+
+<p>现在<code>MultipleTargetsB</code>的<code>Scheme</code>还是<code>MultipleTargetsA copy</code>:</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f09onihy4tj20c20820uh.jpg" alt="image" /></p>
+
+<p>我们可以通过<code>Manage Schemes</code>，选择<code>MultipleTargetsA copy</code>，然后按回车键进行编辑，将它改为<code>MultipleTargetsB</code>：</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f09onj571gj20m00d4dh4.jpg" alt="image" /></p>
+
+<h4>6、资源文件和类文件</h4>
+
+<p>上面说了几个<code>APP</code>%90是相同的，不同的地方的资源文件和类文件如果要加以区分，比如<code>A.m</code>类属于<code>MultipleTargetsA</code>而不属于<code>MultipleTargetsB</code>，这时我们可以利用<code>Xcode</code>的<code>Target Membership</code>功能，来选择该类属于哪个<code>Target</code>。</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f09onjlay4j20dw0a5dh8.jpg" alt="image" /></p>
+
+<p>对于<code>Assets</code>文件来说，它只能整体的选择某个<code>Target</code>，所以不同的<code>Target</code>你可能需要建立不同的<code>Assets</code>文件。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Classes and Metaclasses]]></title>

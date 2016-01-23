@@ -9,7 +9,7 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="这是一篇译文，原文在这里，水平有限，翻译难免有错误的地方。 Objective-C是一个基于类别对象的系统。每一个对象都是某个类的实例，对象的isa指向它自己的类(Class),这个类描述了该对象所有的数据信息：开辟的空间大小，成员变量类型以及其他信息的排列， &hellip;">
+  <meta name="description" content="一般情况下，我们是一个App应用对应一个Xcode Project，但是如果你需要同时开发多个产品，而这些产品90%的数据结构以及交互方式都一样，呈现在用户面前的这两个产品，最大的不一样就是UI元素以及某些配色时，如果这个时候还是一个App一个Xcode Project，普遍的做法是： &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,47 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-01-23T20:11:40+08:00'><span class='date'>2016 年1 月23 日</span> <span class='time'>8:11 pm</span></time>
+        
+           | <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>一般情况下，我们是一个App应用对应一个<code>Xcode Project</code>，但是如果你需要同时开发多个产品，而这些产品90%的数据结构以及交互方式都一样，呈现在用户面前的这两个产品，最大的不一样就是UI元素以及某些配色时，如果这个时候还是一个App一个<code>Xcode Project</code>，普遍的做法是：</p>
+
+<p>你会先开发完成一个产品，然后在复制到其他的产品中，非常的麻烦而且效率很低，你需要一个一个文件去比对。如果你使用模块的方式，开发完一个模块，然后再利用<code>Pod</code>的方式导入到其他产品中，虽然这样可行，但是涉及到产品的迭代开发以及产品的随时会变的交互，模块的细化分很难实现。</p>
+
+<p>如果你也面临这样的问题，不放考虑一下下面讲的<code>一个工程来开发多个App</code>：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">阅读全文 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -349,6 +390,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/28/classes-and-metaclasses/">Classes and Metaclasses</a>
       </li>
     
@@ -364,10 +409,6 @@
         <a href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">App中拨打电话一点小总结</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/">Xcode控制台打印CGRect</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -381,7 +422,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - 梁炜V -
+  Copyright &copy; 2016 - 梁炜V -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
