@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>iOS测试之UIAutomation介绍 - 夏树正茂</title>
+  <meta name="author" content="梁炜V">
+
+  
+  <meta name="description" content="UIAutomation是随着iOS SDK 4.0引入的，帮助开发者在while you sleep的时候也能帮你进行自动化的UI测试，它的测试代码使用Javascript编写，不过别担心，如果你对Javascript不熟悉的话，可以使用Instrument中UIAutomation的录制功能， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://summertreee.github.io/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="夏树正茂" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">夏树正茂</a></h1>
+  
+    <h2>花有重开日，人无再少年.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="订阅 RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="summertreee.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="搜索"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">iOS测试之UIAutomation介绍</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-29T07:47:18+08:00'><span class='date'>2016 年2 月29 日</span> <span class='time'>7:47 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>UIAutomation是随着iOS SDK 4.0引入的，帮助开发者在<code>while you sleep</code>的时候也能帮你进行自动化的UI测试，它的测试代码使用Javascript编写，不过别担心，如果你对Javascript不熟悉的话，可以使用Instrument中<code>UIAutomation</code>的录制功能，它能将你的操作转换为测试代码，你只需要保存这些自动生成的代码就行，稍后我们将介绍该功能。</p>
+
+<p>使用<code>UIAutomation</code>做自动化UI测试时，使用者需要做最基本的两件事情是：</p>
+
+<ul>
+<li>如何找到界面上的UI元素</li>
+<li>如何针对找到的UI元素进行测试操作</li>
+</ul>
+
+
+<!--more-->
+
+
+<h4>如何找到界面上的UI元素</h4>
+
+<p>在<code>UIAutomation</code>中，界面就是一堆UI元素构建的层级结构，这些元素需要一个叫<code>Accessibility label</code>去标记，它可以在如下所示的地方进行设置：</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1q07rxj20bn0d83zs.jpg" alt="image" /></p>
+
+<p><code>UI Accessibility</code>在iOS3.0就被引入了，它是用来辅助身体不便的人士使用APP的，VoiceOver是Apple的屏幕阅读技术，而<code>UI Accessibility</code>的基本原则就是对屏幕上的UI元素进行分类和标记，两者配合，通过阅读和聆听这些元素，用户就可以在不接触屏幕的情况下通过声音使用APP。</p>
+
+<p><code>Accessibility</code> 的核心思想是对 UI 元素进行分类和标记，将屏幕上的UI分类为像是按钮，文本框，Cell或者是静态文本(也就是label) 这样的类型，然后使用<code>identifier</code>来区分不同的UI元素。用户可以通过语音控制app的按钮点击，或是询问某个label的内容等等，十分方便。iOS SDK 中的控件都实现了默认的<code>Accessibility</code>支持，而我们如果使用自定义的控件的话，则需要自行使用 <code>Accessibility</code> 的 API 来进行添加。</p>
+
+<h4>对找到的UI元素进行测试操作</h4>
+
+<h5>1、启动Instruments</h5>
+
+<p>由于<code>UIAutomation</code>被集成到了<code>Instruments</code>中，所以要进行<code>UIAutomation</code>测试，首先打开如下所示的工具<code>Automation</code></p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1qinz2j20l90bz774.jpg" alt="image" /></p>
+
+<h6>2、编写测试代码</h6>
+
+<p>打开<code>Automation</code>如下图所示：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1r6ehaj20ou0jdq6l.jpg" alt="image" /></p>
+
+<p>在这里我们可以进行测试代码的编写或者在右边区域直接导入已经写好的测试代码，正如前面提到的，这些测试代码需要使用JavaScript进行编写，如果你不熟悉或者嫌麻烦，可以使用底部的录制功能，启用录制后你对屏幕的测试操作都会被自动的转为测试代码，非常方便。</p>
+
+<p>测试如果不通过，就会在顶部的时间轴上标红，测试也会自动停止。</p>
+
+<h6>3、测试代码相关的简介</h6>
+
+<p>在<code>UIAutomation</code>中所有元素都继承自<code>UIAElement</code>，这个对象提供了每个UI元素所应具备的如下属性：</p>
+
+<ul>
+<li>name</li>
+<li>value</li>
+<li>elements</li>
+<li>parent</li>
+</ul>
+
+
+<p>一、Target application<br/>
+获取方法：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIAtarget.localTarget().ftontMostApp()  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+<img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1rmjppj208u0dw769.jpg" alt="image" /></p>
+
+<p>二、Main Window<br/>
+获取到他的方法如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIAtarget.localTarget().ftontMostApp().mainWindow()  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+<img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1rmjppj208u0dw769.jpg" alt="image" /></p>
+
+<p>三、View<br/>
+获取主视图的方法如下(eg:UITableView):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIATarget.localTarget().frontMostApp().mainWindow ().tableViews()[0]  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+<img src="http://ww1.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1se2hij208u0dwac1.jpg" alt="image" /></p>
+
+<p>四、Element<br/>
+例如获取tableView下的第一行：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIATarget.localTarget().frontMostApp().mainWindow ().tableViews()[0].cells()[0]  </span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1t0c7rj208w0dwtao.jpg" alt="image" /></p>
+
+<p>五、Child Element<br/>
+例如想获取第一行里面的显示标题的label：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIATarget.localTarget().frontMostApp().mainWindow ().tableViews()[0].cells()[0].elements()[“第一章 会计法律制度”]  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+<img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f1fv1te5d2j208u0dwabz.jpg" alt="image" /></p>
+
+<p>六、button的点击事件<br/>
+例如一个叫<code>Edit</code>的button，我们要模拟对他的点击，可以如下测试：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIATarget.localTarget().frontMostApp().navigationBar().buttons()["Add"].tap();  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+七、文本的输入<br/>
+例如界面上只有一个<code>UITextField</code>，我们要测试对它输入一段文字：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> var name = “Turtle Pie”; UIATarget.localTarget().frontMostApp().mainWindow().textFields()[0].setValue(name);  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>八、Logging<br/>
+开始测试和结束测试：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> var testName = "My first test"; UIALogger.logStart(testName); ... // test code ... UIALogger.logPass(testName);</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>测试过程中打印Log信息：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> var testName = "My first test"; UIALogger.logStart(testName); ... UIALogger.logMessage("Logging about my test"); ... UIALogger.logPass(testName);  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>九、模拟点击Home键进入后台一段时间再自动唤起：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> UIALogger.logMessage("Deactivating app");
+</span><span class='line'> //10s后自动唤起 UIATarget.localTarget().deactivateAppForDuration(10); UIALogger.logMessage("Resuming test after deactivation");</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+十、模拟Orientation切换：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> var target = UIATarget.localTarget(); var app = target.frontMostApp(); // set landscape left target.setDeviceOrientation(UIA_DEVICE_ORIENTATION_LANDSCAPELEFT); UIALogger.logMessage("Current orientation is " + app.interfaceOrientation()); // portrait target.setDeviceOrientation(UIA_DEVICE_ORIENTATION_PORTRAIT); UIALogger.logMessage("Current orientation is " + app.interfaceOrientation());   </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h5>模拟手势操作</h5>
+
+<p>一、Taps</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIATarget.localTarget().tap({x:100, y:200});UIATarget.localTarget().doubleTap({x:100, y:200});UIATarget.localTarget().twoFingerTap({x:100, y:200});</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>二、Pinches</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//指定pinch在2秒内完成
+</span><span class='line'>UIATarget.localTarget().pinchOpenFromToForDuration({x:20, y:200}, {x:300, y:200},2);UIATarget.localTarget().pinchCloseFromToForDuration({x:20, y:200}, {x:300, y:200}, 2);</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>三、Drag and Flick</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UIATarget.localTarget().dragFromToForDuration({x:160, y:200}, {x:160, y:400}, 1);UIATarget.localTarget().flickFromTo({x:160, y:200}, {x:160, y:400});</span></code></pre></td></tr></table></div></figure>
+
+
+<p>虽然从iOS7开始，<code>UIAutomatation</code>苹果不在维护了，转而支持Xcode中的UI Testing，但是它却可以测试复杂的手势操作，这是目前UI Testing无法完成的。</p>
+
+<h5>参考文章</h5>
+
+<p>1、<a href="https://developer.apple.com/videos/play/wwdc2010/306/">https://developer.apple.com/videos/play/wwdc2010/306/</a><br/>
+2、<a href="http://blog.manbolo.com/2012/04/08/ios-automated-tests-with-uiautomation">http://blog.manbolo.com/2012/04/08/ios-automated-tests-with-uiautomation</a><br/>
+3、<a href="http://onevcat.com/2015/09/ui-testing/">http://onevcat.com/2015/09/ui-testing/</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">梁炜V</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-02-29T07:47:18+08:00'><span class='date'>2016 年2 月29 日</span> <span class='time'>7:47 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://summertreee.github.io/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/" data-via="" data-counturl="http://summertreee.github.io/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/" title="Previous Post: iOS中如何在一个工程创建多个App">&laquo; iOS中如何在一个工程创建多个App</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>最新文章</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/28/classes-and-metaclasses/">Classes and Metaclasses</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/">ContentCompressionResistance和ContentHugging详解</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/22/auto-layoutshi-yong-xiao-ji-qiao/">Auto Layout使用小技巧</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - 梁炜V -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'summertreee';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://summertreee.github.io/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/';
+        var disqus_url = 'http://summertreee.github.io/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
