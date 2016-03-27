@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swift脚本编辑 - 夏树正茂</title>
+  <meta name="author" content="梁炜V">
+
+  
+  <meta name="description" content="Swift是一种编译型语言，功能强大而且灵活性十足，现在你甚至可以在shell脚本中运行Swift代码。 编写shell脚本包括以下几个步骤： 使用编辑器创建脚本。
+设置脚本的权限，使其能够执行。
+执行脚本。 1、编辑脚本 我们可以使用Xcode来直接创建shell脚本： 选择菜单 File -& &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://summertreee.github.io/blog/2016/03/28/swiftjiao-ben-bian-ji/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="夏树正茂" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">夏树正茂</a></h1>
+  
+    <h2>花有重开日，人无再少年.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="订阅 RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="summertreee.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="搜索"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Swift脚本编辑</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-03-28T07:23:47+08:00'><span class='date'>2016 年3 月28 日</span> <span class='time'>7:23 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><code>Swift</code>是一种编译型语言，功能强大而且灵活性十足，现在你甚至可以在<code>shell</code>脚本中运行<code>Swift</code>代码。</p>
+
+<p>编写<code>shell</code>脚本包括以下几个步骤：</p>
+
+<ol>
+<li>使用编辑器创建脚本。</li>
+<li>设置脚本的权限，使其能够执行。</li>
+<li>执行脚本。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h4>1、编辑脚本</h4>
+
+<p>我们可以使用<code>Xcode</code>来直接创建<code>shell</code>脚本：</p>
+
+<p>选择菜单 <code>File -&gt; New -&gt; File</code>,在<code>iOS</code>下选择<code>Other</code>，再在右边选择<code>Shell Script</code></p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f2c7xkqp1vj20kc0ehq4t.jpg" alt="image" /></p>
+
+<p>单击<code>Next</code>按钮，将新建的文件保存，命名为<strong>SwiftScript</strong>，Xcode会自动为其添加<code>.sh</code>的后缀名。这时你就可以在新出现的窗口中编辑脚本了。</p>
+
+<p><code>Xcode</code>将自动为这个文件添加几行代码，其中最重要的一行是：</p>
+
+<pre><code>#!/bin/sh  
+</code></pre>
+
+<p>这被称为<code>hash bang</code>语法，指定了要用来运行后续代码行的<code>shell</code>在文件系统中的完整路径。这里指定的是<code>/bin/sh（Bash shell）</code>。进行<code>Swift</code>脚本编程时，需要移除这行代码。事实上，请删除所有这些代码行，并输入如下代码行：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/env xcrun swift
+</span><span class='line'>import Foundation
+</span><span class='line'>
+</span><span class='line'>class Execution {
+</span><span class='line'>class func execute(path path: String, arguments: [String]? = nil) -&gt; Int {
+</span><span class='line'>   let task = NSTask()
+</span><span class='line'>   task.launchPath = path
+</span><span class='line'>   if arguments != nil {
+</span><span class='line'>     task.arguments = arguments!
+</span><span class='line'>   }
+</span><span class='line'>
+</span><span class='line'>   task.launch()
+</span><span class='line'>   task.waitUntilExit()
+</span><span class='line'>   return Int(task.terminationStatus)
+</span><span class='line'>
+</span><span class='line'>}
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>var status : Int = 0
+</span><span class='line'>status = Execution.execute(path: "/bin/ls")
+</span><span class='line'>print("Status = \(status)")
+</span><span class='line'>
+</span><span class='line'>status = Execution.execute(path: "/bin/ls", arguments:["/"])
+</span><span class='line'>print("Status = \(status)")
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>该脚本的含义将在稍后介绍。</p>
+
+<h4>2、设置权限</h4>
+
+<p>脚本是从命令行运行的，所以启动<code>Terminal</code>，进入到你刚才所写<strong>shell</strong>的文件夹下，执行如下命令：</p>
+
+<pre><code>chmod +x SwiftScript.sh  
+</code></pre>
+
+<p>它设置脚本文件的权限，使其能够被<code>shell</code>执行。</p>
+
+<h4>3、运行脚本</h4>
+
+<p>运行脚本很容易，只需要指定脚本的名称，如下：</p>
+
+<pre><code>./SwiftScript.sh  
+</code></pre>
+
+<p><strong>./</strong>是告诉shell，需要执行的脚本位于当前目录中，必须显式地指出这一点，否则shell会找不到脚本。</p>
+
+<p>该脚本运行后，你将看到该<code>shell</code>所在文件夹以及磁盘根文件夹的文件清单，你还将看到<code>Status = 0</code>，它指出用于显示文件命令运行正常，没有出现问题。</p>
+
+<h4>4、工作原理</h4>
+
+<p>第一行是前面说过的<code>hash bang</code>，这里指定的应用路径为<code>/usr/bin/env</code>,它是一个为shell脚本设置环境的特殊命令，路径后面是一个你很熟悉的命令&mdash;启动<code>REPL</code>的命令<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  #!/usr/bin/env xcrun swift  
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>下一条命令是一个<code>import</code>命令，与我们应用程序一样，<code>Swift</code>脚本也需要有基本的代码库才能运行。<code>Foundation</code>是向<code>Swift</code>脚本提供基本功能的框架，因此这里导入它：</p>
+
+<pre><code>import Foundation  
+</code></pre>
+
+<p>接下来是一个名为<code>Execution</code>的<code>Swift</code>类，其使命是执行命令，将需要执行的命令封装在类中，后面的执行将容易很多。</p>
+
+<pre><code>class Execution {
+
+}  
+</code></pre>
+
+<p>这个类中只有唯一的类方法<code>execute</code>，用关键字<code>class</code>定义：一个名为<code>path</code>的<strong>String</strong>参数(用于指定要运行的可执行文件的路径)以及一个名为<code>arguments</code>的<strong>String</strong>数组参数(这个参数是可选的，默认值是<em>nil</em>)。这个方法的返回值是一个<code>Int</code>值，指出了命令的执行状态。</p>
+
+<p>在<code>execute</code>方法中使用<code>Foundation</code>类的<code>NSTask</code>来设置启动路径和参数：</p>
+
+<pre><code>let task = NSTask()  
+task.launchPath = path
+</code></pre>
+
+<p>对于参数<code>arguments</code>，必须检查其为非<strong>nil</strong>才能使用<code>!</code>将其解包并赋值给<code>task</code>对象的属性<code>arguments</code>。</p>
+
+<pre><code>if arguments != nil {
+    task.arguments = arguments!
+}
+</code></pre>
+
+<p>设置好<code>task</code>对象后，调用其<code>launch</code>命令来执行指定的命令：</p>
+
+<pre><code>task.launch()    
+</code></pre>
+
+<p>有关<code>NSTask</code>的文档指出，必须调用方法<code>waitUntilExit</code>让任务结束。</p>
+
+<pre><code>task.waitUntilExit()  
+</code></pre>
+
+<p>最后，将<code>task</code>对象的属性<code>terminationStatus</code>作为<code>Int</code>值返回（这个属性的类型为<code>Int32</code>，因此这里将其转换为<code>Int</code>，以方便调用者）：</p>
+
+<pre><code>return Int(task.terminationStatus)  
+</code></pre>
+
+<p>在类定义的后面，定义了一个变量用于存储方法<code>execute</code>方法的返回值：</p>
+
+<pre><code>var status : Int = 0  
+</code></pre>
+
+<p>接下来，调用<code>execute</code>来执行命令<code>、bin/ls</code>（它显示目录中的文件）。<br/>
+另外，注意到一开始没有传入参数<code>arguments</code>：</p>
+
+<pre><code>status = Execution.execute(path: "/bin/ls")
+println("Status = \(status)")
+</code></pre>
+
+<p>接下来，再次调用方法execute来执行命令<code>/bin/ls</code>，但这次通过参数<code>arguments</code>指定了根路径<code>/</code>。</p>
+
+<pre><code>status = Execution.execute(path: "/bin/ls", arguments:["/"])
+print("Status = \(status)")  
+</code></pre>
+
+<p>你可以使用<code>Swift</code>编写一个类，并在<code>Shell</code>脚本中使用。</p>
+
+<h5>参考文献：</h5>
+
+<p>Swift基础教程</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>REPL(Read-Eval-Print-Loop)是一个命令行工具，可用于快速尝试<code>Swift</code>代码，在<code>Mac OPX</code>中，可在应用程序<code>Terminal</code>中运行它。   <a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">梁炜V</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-03-28T07:23:47+08:00'><span class='date'>2016 年3 月28 日</span> <span class='time'>7:23 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://summertreee.github.io/blog/2016/03/28/swiftjiao-ben-bian-ji/" data-via="" data-counturl="http://summertreee.github.io/blog/2016/03/28/swiftjiao-ben-bian-ji/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/" title="Previous Post: 面试精选：链表问题集锦">&laquo; 面试精选：链表问题集锦</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>最新文章</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/03/28/swiftjiao-ben-bian-ji/">Swift脚本编辑</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/">面试精选：链表问题集锦</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/28/classes-and-metaclasses/">Classes and Metaclasses</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - 梁炜V -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'summertreee';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://summertreee.github.io/blog/2016/03/28/swiftjiao-ben-bian-ji/';
+        var disqus_url = 'http://summertreee.github.io/blog/2016/03/28/swiftjiao-ben-bian-ji/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
