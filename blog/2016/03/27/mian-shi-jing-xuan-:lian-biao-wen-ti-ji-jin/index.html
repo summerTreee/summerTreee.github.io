@@ -1,0 +1,743 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>面试精选：链表问题集锦 - 夏树正茂</title>
+  <meta name="author" content="梁炜V">
+
+  
+  <meta name="description" content="前言：链表由于其本身的灵活性，很能考察程序员的编程功底，在面试中被问到链表相关的知识的概率很高，所以很值得我们去学习汇总，下面的内容非原创，而是自己在复习链表的过程中从别处摘抄而来，若想查看原文内容，可以看文章末尾的链接。 下面是本文所要用到的链表节点的定义： struct Node{ int &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://summertreee.github.io/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="夏树正茂" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">夏树正茂</a></h1>
+  
+    <h2>花有重开日，人无再少年.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="订阅 RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="summertreee.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="搜索"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">面试精选：链表问题集锦</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-03-27T22:13:23+08:00'><span class='date'>2016 年3 月27 日</span> <span class='time'>10:13 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>前言：链表由于其本身的灵活性，很能考察程序员的编程功底，在面试中被问到链表相关的知识的概率很高，所以很值得我们去学习汇总，下面的内容非原创，而是自己在复习链表的过程中从别处摘抄而来，若想查看原文内容，可以看文章末尾的链接。</p></blockquote>
+
+<p>下面是本文所要用到的链表节点的定义：</p>
+
+<pre><code>struct Node{
+    int data;
+    Node* next;
+};    
+</code></pre>
+
+<!--more-->
+
+
+<h4>1、在O(1)时间删除链表节点</h4>
+
+<p><strong>题目描述</strong>：给定链表的头指针和一个节点指针，在O(1)时间删除该节点。[Google面试题]</p>
+
+<p><strong>分析</strong>：本题与《编程之美》上的<code>从无头单链表中删除节点</code>类似。主要思想都是<code>狸猫换太子</code>，即用下一个节点数据覆盖要删除的节点，然后删除下一个节点。但是如果节点是尾节点时，该方法就行不通了。</p>
+
+<p><strong>代码如下：</strong></p>
+
+<pre><code>//O(1)时间删除链表节点，从无头单链表中删除节点
+void deleteRandomNode(Node *cur)
+{
+    assert(cur != NULL);
+    assert(cur-&gt;next != NULL);    //不能是尾节点
+    Node* pNext = cur-&gt;next;
+    cur-&gt;data = pNext-&gt;data;
+    cur-&gt;next = pNext-&gt;next;
+    delete pNext;
+}  
+</code></pre>
+
+<h4>2、单链表的转置</h4>
+
+<p><strong>题目描述：</strong>输入一个单向链表，输出逆序反转后的链表。</p>
+
+<p><strong>分析：</strong>链表的转置是一个很常见、很基础的数据结构题了，非递归的算法很简单，用三个临时指针 pre、head、next 在链表上循环一遍即可。递归算法也是比较简单的，但是如果思路不清晰估计一时半会儿也写不出来吧。</p>
+
+<p><code>循环版本</code>和<code>递归版本</code>的链表转置代码如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  
+</span><span class='line'>//单链表的转置,循环方法
+</span><span class='line'>Node* reverseByLoop(Node *head)
+</span><span class='line'>{
+</span><span class='line'>    if(head == NULL || head-&gt;next == NULL)
+</span><span class='line'>        return head;
+</span><span class='line'>    Node *pre = NULL;
+</span><span class='line'>    Node *next = NULL;
+</span><span class='line'>    while(head != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        next = head-&gt;next;
+</span><span class='line'>
+</span><span class='line'>        head-&gt;next = pre;
+</span><span class='line'>        pre = head;
+</span><span class='line'>        head = next;
+</span><span class='line'>    }
+</span><span class='line'>    return pre;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>//单链表的转置,递归方法
+</span><span class='line'>Node* reverseByRecursion(Node *head)
+</span><span class='line'>{
+</span><span class='line'>    //第一个条件是判断异常，第二个条件是结束判断
+</span><span class='line'>    if(head == NULL || head-&gt;next == NULL) 
+</span><span class='line'>        return head;
+</span><span class='line'>
+</span><span class='line'>    Node *newHead = reverseByRecursion(head-&gt;next);
+</span><span class='line'>
+</span><span class='line'>    head-&gt;next-&gt;next = head;
+</span><span class='line'>    head-&gt;next = NULL;
+</span><span class='line'>
+</span><span class='line'>    return newHead;    //返回新链表的头指针
+</span><span class='line'>}
+</span><span class='line'>  
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>3、求链表倒数第k个节点</h4>
+
+<p><strong>题目描述：</strong>输入一个单向链表，输出该链表中倒数第k个节点，链表的倒数第0个节点为链表的尾指针。</p>
+
+<p><strong>分析：</strong>设置两个指针 p1、p2，首先 p1 和 p2 都指向 head，然后 p2 向前走 k 步，这样 p1 和 p2 之间就间隔 k 个节点，最后 p1 和 p2 同时向前移动，直至 p2 走到链表末尾。</p>
+
+<p><strong>代码如下：</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//倒数第k个节点
+</span><span class='line'>Node* theKthNode(Node *head,int k)
+</span><span class='line'>{
+</span><span class='line'>    if(k &lt; 0) return NULL;    //异常判断
+</span><span class='line'>
+</span><span class='line'>    Node *slow,*fast;
+</span><span class='line'>    slow = fast = head;
+</span><span class='line'>    int i = k;
+</span><span class='line'>    for(;i&gt;0 && fast!=NULL;i--)
+</span><span class='line'>    {
+</span><span class='line'>        fast = fast-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    if(i &gt; 0)    return NULL;    //考虑k大于链表长度的case
+</span><span class='line'>
+</span><span class='line'>    while(fast != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        slow = slow-&gt;next;
+</span><span class='line'>        fast = fast-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    return slow;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>4、求链表的中间节点</h4>
+
+<p><strong>题目描述：</strong>求链表的中间节点，如果链表的长度为偶数，返回中间两个节点的任意一个，若为奇数，则返回中间节点。</p>
+
+<p><strong>分析：</strong>此题的解决思路和第3题「求链表的倒数第 k 个节点」很相似。可以先求链表的长度，然后计算出中间节点所在链表顺序的位置。但是如果要求只能扫描一遍链表，如何解决呢？最高效的解法和第3题一样，通过两个指针来完成。用两个指针从链表头节点开始，一个指针每次向后移动两步，一个每次移动一步，直到快指针移到到尾节点，那么慢指针即是所求。</p>
+
+<p><strong>代码如下：</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//求链表的中间节点
+</span><span class='line'>Node* theMiddleNode(Node *head)
+</span><span class='line'>{
+</span><span class='line'>    if(head == NULL)
+</span><span class='line'>        return NULL;
+</span><span class='line'>    Node *slow,*fast;
+</span><span class='line'>    slow = fast = head;
+</span><span class='line'>    //如果要求在链表长度为偶数的情况下，返回中间两个节点的第一个，可以用下面的循环条件
+</span><span class='line'>    //while(fast && fast-&gt;next != NULL && fast-&gt;next-&gt;next != NULL)  
+</span><span class='line'>    while(fast != NULL && fast-&gt;next != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        fast = fast-&gt;next-&gt;next;
+</span><span class='line'>        slow = slow-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>    return slow;
+</span><span class='line'>}  
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>5、判断单链表是否存在环</h4>
+
+<p><strong>题目描述：</strong>输入一个单向链表，判断链表是否有环？</p>
+
+<p><strong>分析：</strong>通过两个指针，分别从链表的头节点出发，一个每次向后移动一步，另一个移动两步，两个指针移动速度不一样，如果存在环，那么两个指针一定会在环里相遇。</p>
+
+<p><strong>代码如下：</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//判断单链表是否存在环,参数circleNode是环内节点，后面的题目会用到
+</span><span class='line'>bool hasCircle(Node *head,Node *&circleNode)
+</span><span class='line'>{
+</span><span class='line'>    Node *slow,*fast;
+</span><span class='line'>    slow = fast = head;
+</span><span class='line'>    while(fast != NULL && fast-&gt;next != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        fast = fast-&gt;next-&gt;next;
+</span><span class='line'>        slow = slow-&gt;next;
+</span><span class='line'>        if(fast == slow)
+</span><span class='line'>        {
+</span><span class='line'>            circleNode = fast;
+</span><span class='line'>            return true;
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    return false;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>6、找到环的入口点</h4>
+
+<p><strong>题目描述：</strong>输入一个单向链表，判断链表是否有环。如果链表存在环，如何找到环的入口点？</p>
+
+<p><strong>解题思路：</strong>由上题可知，按照 p2 每次两步，p1 每次一步的方式走，发现 p2 和 p1 重合，确定了单向链表有环路了。接下来，让p2回到链表的头部，重新走，每次步长不是走2了，而是走1，那么当 p1 和 p2 再次相遇的时候，就是环路的入口了。</p>
+
+<p><strong>为什么？：</strong>假定起点到环入口点的距离为 a，p1 和 p2 的相交点M与环入口点的距离为b，环路的周长为L，当 p1 和 p2 第一次相遇的时候，假定 p1 走了 n 步。那么有：</p>
+
+<p>p1走的路径：<code>a+b ＝ n</code>；</p>
+
+<p>p2走的路径： <code>a+b+k*L = 2*n</code>； p2 比 p1 多走了k圈环路，总路程是p1的2倍；</p>
+
+<p>根据上述公式可以得到 <code>k*L=a+b=n</code>显然，如果从相遇点M开始，p1 再走 n 步的话，还可以再回到相遇点，同时p2从头开始走的话，经过n步，也会达到相遇点M。</p>
+
+<p>显然在这个步骤当中 p1 和 p2 只有前 a 步走的路径不同，所以当 p1 和 p2 再次重合的时候，必然是在链表的环路入口点上。</p>
+
+<p><strong>代码如下：</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//找到环的入口点
+</span><span class='line'>Node* findLoopPort(Node *head)
+</span><span class='line'>{
+</span><span class='line'>    //如果head为空，或者为单结点，则不存在环
+</span><span class='line'>    if(head == NULL || head-&gt;next == NULL) return NULL;
+</span><span class='line'>
+</span><span class='line'>    Node *slow,*fast;
+</span><span class='line'>    slow = fast = head;
+</span><span class='line'>
+</span><span class='line'>    //先判断是否存在环
+</span><span class='line'>    while(fast != NULL && fast-&gt;next != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        fast = fast-&gt;next-&gt;next;
+</span><span class='line'>        slow = slow-&gt;next;
+</span><span class='line'>        if(fast == slow)
+</span><span class='line'>            break;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    if(fast != slow) return NULL;    //不存在环
+</span><span class='line'>
+</span><span class='line'>    fast = head;                //快指针从头开始走，步长变为1
+</span><span class='line'>    while(fast != slow)            //两者相遇即为入口点
+</span><span class='line'>    {
+</span><span class='line'>        fast = fast-&gt;next;
+</span><span class='line'>        slow = slow-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    return fast;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>7、编程判断两个链表是否相交</h4>
+
+<p><strong>题目描述：</strong>给出两个单向链表的头指针（如下图所示）：</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f2brlca2xlj20d403qaa0.jpg" alt="image" /></p>
+
+<p>比如h1、h2，判断这两个链表是否相交。这里为了简化问题，我们假设两个链表均不带环。</p>
+
+<p><strong>解题思路：</strong></p>
+
+<ol>
+<li>直接循环判断第一个链表的每个节点是否在第二个链表中。但，这种方法的时间复杂度为O(Length(h1) * Length(h2))。显然，我们得找到一种更为有效的方法，至少不能是O（N<sup>2</sup>）的复杂度。</li>
+<li>针对第一个链表直接构造hash表，然后查询hash表，判断第二个链表的每个节点是否在hash表出现，如果所有的第二个链表的节点都能在hash表中找到，即说明第二个链表与第一个链表有相同的节点。时间复杂度为为线性：O(Length(h1) + Length(h2))，同时为了存储第一个链表的所有节点，空间复杂度为O(Length(h1))。是否还有更好的方法呢，既能够以线性时间复杂度解决问题，又能减少存储空间？</li>
+<li>转换为环的问题。把第二个链表接在第一个链表后面，如果得到的链表有环，则说明两个链表相交。如何判断有环的问题上面已经讨论过了，但这里有更简单的方法。因为如果有环，则第二个链表的表头一定也在环上，即第二个链表会构成一个循环链表，我们只需要遍历第二个链表，看是否会回到起始点就可以判断出来。这个方法的时间复杂度是线性的，空间是常熟。</li>
+<li>进一步考虑“如果两个没有环的链表相交于某一节点，那么在这个节点之后的所有节点都是两个链表共有的”这个特点，我们可以知道，如果它们相交，则最后一个节点一定是共有的。而我们很容易能得到链表的最后一个节点，所以这成了我们简化解法的一个主要突破口。那么，我们只要判断两个链表的尾指针是否相等。相等，则链表相交；否则，链表不相交。
+所以，先遍历第一个链表，记住最后一个节点。然后遍历第二个链表，到最后一个节点时和第一个链表的最后一个节点做比较，如果相同，则相交，否则，不相交。这样我们就得到了一个时间复杂度，它为O((Length(h1) + Length(h2))，而且只用了一个额外的指针来存储最后一个节点。这个方法时间复杂度为线性O(N)，空间复杂度为O(1)，显然比解法三更胜一筹。</li>
+</ol>
+
+
+<p><strong>解法的代码如下：</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//判断两个链表是否相交
+</span><span class='line'>bool isIntersect(Node *h1,Node *h2)
+</span><span class='line'>{
+</span><span class='line'>    if(h1 == NULL || h2 == NULL) return false;    //异常判断
+</span><span class='line'>    while(h1-&gt;next != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        h1 = h1-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    while(h2-&gt;next != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        h2 = h2-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    if(h1 == h2) return true;        //尾节点是否相同
+</span><span class='line'>    else return false;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>8、 扩展：链表有环，如何判断相交</h4>
+
+<p><strong>题目描述：</strong>上面的问题都是针对链表无环的，那么如果现在，链表是有环的呢?上面的方法还同样有效么?</p>
+
+<p><strong>分析：</strong>如果有环且两个链表相交，则两个链表都有共同一个环，即环上的任意一个节点都存在于两个链表上。因此，就可以判断一链表上俩指针相遇的那个节点，在不在另一条链表上。</p>
+
+<p><strong>代码如下：</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//判断两个带环链表是否相交
+</span><span class='line'>bool isIntersectWithLoop(Node *h1,Node *h2)
+</span><span class='line'>{
+</span><span class='line'>    Node *circleNode1,*circleNode2;
+</span><span class='line'>    if(!hasCircle(h1,circleNode1))    //判断链表带不带环，并保存环内节点
+</span><span class='line'>        return false;                //不带环，异常退出
+</span><span class='line'>    if(!hasCircle(h2,circleNode2))
+</span><span class='line'>        return false;
+</span><span class='line'>
+</span><span class='line'>    Node *temp = circleNode2-&gt;next;
+</span><span class='line'>    while(temp != circleNode2)
+</span><span class='line'>    {
+</span><span class='line'>        if(temp == circleNode1)
+</span><span class='line'>            return true;
+</span><span class='line'>        temp = temp-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>    return false;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>9、扩展：两链表相交的第一个公共节点</h4>
+
+<p><strong>题目描述：</strong>如果两个无环单链表相交，怎么求出他们相交的第一个节点呢？</p>
+
+<p><strong>分析：</strong>采用对齐的思想。计算两个链表的长度 L1 , L2，分别用两个指针 p1 , p2 指向两个链表的头，然后将较长链表的 p1（假设为 p1）向后移动L2 - L1个节点，然后再同时向后移动p1 , p2，直到 p1 = p2。相遇的点就是相交的第一个节点。</p>
+
+<p><strong>代码如下：</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//求两链表相交的第一个公共节点
+</span><span class='line'>Node* findIntersectNode(Node *h1,Node *h2)
+</span><span class='line'>{
+</span><span class='line'>    int len1 = listLength(h1);          //求链表长度
+</span><span class='line'>    int len2 = listLength(h2);
+</span><span class='line'>    //对齐两个链表
+</span><span class='line'>    if(len1 &gt; len2)
+</span><span class='line'>    {
+</span><span class='line'>        for(int i=0;i&lt;len1-len2;i++)
+</span><span class='line'>            h1=h1-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>    else 
+</span><span class='line'>    {
+</span><span class='line'>        for(int i=0;i&lt;len2-len1;i++)
+</span><span class='line'>            h2=h2-&gt;next;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    while(h1 != NULL)
+</span><span class='line'>    {
+</span><span class='line'>        if(h1 == h2)
+</span><span class='line'>            return h1;
+</span><span class='line'>        h1 = h1-&gt;next;
+</span><span class='line'>        h2 = h2-&gt;next;    
+</span><span class='line'>    }
+</span><span class='line'>    return NULL;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>原文链接，请戳<a href="http://wuchong.me/blog/2014/03/25/interview-link-questions/">这里</a>。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">梁炜V</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-03-27T22:13:23+08:00'><span class='date'>2016 年3 月27 日</span> <span class='time'>10:13 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://summertreee.github.io/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/" data-via="" data-counturl="http://summertreee.github.io/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/" title="Previous Post: iOS测试之UIAutomation介绍">&laquo; iOS测试之UIAutomation介绍</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>最新文章</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/">面试精选：链表问题集锦</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/28/classes-and-metaclasses/">Classes and Metaclasses</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/">ContentCompressionResistance和ContentHugging详解</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - 梁炜V -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'summertreee';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://summertreee.github.io/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/';
+        var disqus_url = 'http://summertreee.github.io/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
