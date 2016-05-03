@@ -9,9 +9,7 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="Swift是一种编译型语言，功能强大而且灵活性十足，现在你甚至可以在shell脚本中运行Swift代码。 编写shell脚本包括以下几个步骤： 使用编辑器创建脚本。
-设置脚本的权限，使其能够执行。
-执行脚本。 ">
+  <meta name="description" content="我们在进行开发的过程中，会对新开发的功能进行但愿测试，不管是TDD还是BDD，我们都需要利用单元测试来保证我们新功能的正确性，这其中包括执行结果是否正确，对边界处理是否周全，一些特殊情况的测试，这对于一些功能较少的工程可能写好一个testXXX函数，执行一遍单元测试，不会花太多时间， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +65,43 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-05-03T09:18:10+08:00'><span class='date'>2016 年5 月3 日</span> <span class='time'>9:18 am</span></time>
+        
+           | <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>我们在进行开发的过程中，会对新开发的功能进行但愿测试，不管是TDD还是BDD，我们都需要利用单元测试来保证我们新功能的正确性，这其中包括执行结果是否正确，对边界处理是否周全，一些特殊情况的测试，这对于一些功能较少的工程可能写好一个<code>testXXX</code>函数，执行一遍单元测试，不会花太多时间，但是对于一些大的工程，可能测试的类会有成百甚至上千个，当你想专注于测试新开发的功能是，每次测试都全部跑一次完整的单元测试，这显然是很耗费时间的行为。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">阅读全文 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -468,54 +503,9 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/13/afnetworking2-dot-0shi-yong-xin-de/">AFNetworking2.0使用心得</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-13T13:56:23+08:00'><span class='date'>2015 年5 月13 日</span> <span class='time'>1:56 pm</span></time>
-        
-           | <a href="/blog/2015/05/13/afnetworking2-dot-0shi-yong-xin-de/#disqus_thread"
-             data-disqus-identifier="http://summertreee.github.io/blog/2015/05/13/afnetworking2-dot-0shi-yong-xin-de/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这段时间要将公司项目中的网络引擎由<a href="http://allseeing-i.com/ASIHTTPRequest/">ASIHTTPRequest</a>替换为<a href="https://github.com/AFNetworking/AFNetworking">AFNetworking</a>,替换的过程比较曲折，在此记录下自己替换过程中得心得：</p>
-
-<h3>1、建立数据请求中介者</h3>
-
-<p>建立<code>中介者</code>是指项目中的数据请求都通过它去实现，而不是每一个数据请求都直接与<code>AFNetworking</code>打交道，这样做的好处是：</p>
-
-<ul>
-<li>将网络请求与第三方库依赖隔离开来，方便以后对第三方库的替换。</li>
-<li>方便处理网络请求的公共逻辑。</li>
-</ul>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/05/13/afnetworking2-dot-0shi-yong-xin-de/">阅读全文 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/posts/2">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -526,6 +516,10 @@
     <section>
   <h1>最新文章</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2016/03/28/swiftjiao-ben-bian-ji/">Swift脚本编辑</a>
@@ -541,10 +535,6 @@
     
       <li class="post">
         <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/28/classes-and-metaclasses/">Classes and Metaclasses</a>
       </li>
     
   </ul>
