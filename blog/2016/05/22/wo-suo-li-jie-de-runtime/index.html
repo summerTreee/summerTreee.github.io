@@ -1,0 +1,915 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>我所理解的Runtime - 夏树正茂</title>
+  <meta name="author" content="梁炜V">
+
+  
+  <meta name="description" content="Objective-C是一门基于对象的动态语言，它里面所有的继承自NSObject的类本身以及类所实例化的对象都是对象，好像有点儿绕，大意就是这是一门基于对象的语言，就连类自己也是一个对象，程序运行起来以后类本身也会被初始化，也占有内存空间。
+在这篇笔记里，我会记录如下的一些信息： 消息传递 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://summertreee.github.io/blog/2016/05/22/wo-suo-li-jie-de-runtime/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="夏树正茂" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">夏树正茂</a></h1>
+  
+    <h2>花有重开日，人无再少年.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="订阅 RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="summertreee.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="搜索"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">我所理解的Runtime</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-05-22T14:46:14+08:00'><span class='date'>2016 年5 月22 日</span> <span class='time'>2:46 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Objective-C是一门基于对象的动态语言，它里面所有的继承自<code>NSObject</code>的类本身以及类所实例化的对象都是对象，好像有点儿绕，大意就是这是一门基于对象的语言，就连类自己也是一个对象，程序运行起来以后类本身也会被初始化，也占有内存空间。<br/>
+在这篇笔记里，我会记录如下的一些信息：</p>
+
+<ul>
+<li>消息传递</li>
+<li>runtime如何处理对象</li>
+<li>self 和 super</li>
+<li>Method Swizzling</li>
+<li>消息转发</li>
+</ul>
+
+
+<!--more-->
+
+
+<h4>消息传递</h4>
+
+<p>Objective-C是一门动态的语言，当我们在某个对象上调用方法是，<code>Objective—C</code>里面叫做<code>消息传递</code>，和<code>C语言</code>的函数调用在本质上就不一样，<code>C语言</code>使用<code>静态绑定</code>，在编译器就能决定运行时应该调用的函数：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//代码一
+</span><span class='line'>void printHello() {
+</span><span class='line'>    printf("Hello, world!\n");
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void printGoodbye() {
+</span><span class='line'>    printf("Goodbye, world!\n");
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void doSomeThing(int type) {
+</span><span class='line'>    if (type == 0) {
+</span><span class='line'>        printHello();
+</span><span class='line'>    } else {
+</span><span class='line'>        printGoodbye();
+</span><span class='line'>    }
+</span><span class='line'>}  
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>以上的代码在编译器编译代码的时候就已经知道程序中有 <strong>printHello</strong> 和 <strong>printGoodbye</strong> 这两个函数了，于是就直接生成调用这些函数的指令。而函数地址实际上是硬编码在指令之中的。但是，对于<code>Objective—C</code>来说，如果像下面这样写，情况会完全不一样：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  //代码二 
+</span><span class='line'>  void printHello() {
+</span><span class='line'>    printf("Hello, world!\n");
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void printGoodbye() {
+</span><span class='line'>    printf("Goodbye, world!\n");
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void doSomeThing(int type) {
+</span><span class='line'>    void (*funcation)();
+</span><span class='line'>    if (type == 0) {
+</span><span class='line'>        funcation = printHello;
+</span><span class='line'>    } else {
+</span><span class='line'>        funcation = printGoodbye;
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>   funcation();
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>这时就需要使用<code>动态绑定</code>了，因为实际调用的方法在运行期根据<strong>type</strong>的值才能确定，在<strong>代码一</strong>中，<strong>if</strong>和<strong>else</strong>里面都有函数调用指令，而在<code>代码二</code>中，只有一个函数调用指令，而且待调用的函数地址无法硬编码到指令中，而是需要在运行期间读取出来。<br/>
+在底层，所以的方法都是普通的<code>C语言</code>函数，当对象接收到消息之后，究竟该调用哪个方法完全是运行期决定的，甚至可以在运行期改变以及交换某些函数的实现，这就是<code>runtime</code>所体现出来的异于其他编程语言的特点。<br/>
+当给某个对象传递一个消息：</p>
+
+<pre><code>id returnValue = [someObject messageName:parameter];  
+</code></pre>
+
+<p>在这个消息中，<code>someObject</code>叫接收者(receiver)，<code>messageName</code>叫做选择子(selector)，选择子和参数结合起来叫<code>消息</code>(message)。当编译器看到此消息后，会将其转换为标准的<code>C语言</code>函数调用，这是就引出了我们消息传递中最核心的一个函数<code>objc_msgSend</code>，其原型如下：</p>
+
+<pre><code>id objc_msgSend(id self, SEL op, ...)  
+</code></pre>
+
+<p>它是一个参数可变的函数，可以接受两个及两个以上的参数。有了这个函数，编译器会把刚才的消息转换为如下的函数：</p>
+
+<pre><code>id returnValue = objc_msgSend(someObjetc,
+                              @selector(messageName:),
+                              parameter);  
+</code></pre>
+
+<p>到了运行期间，为了完成此操作，该方法需要到接受者所属的类中搜索其<strong>方法列表</strong>(后续会有讲到)，如果能找到与<strong>选择子</strong>名称相符的方法，就跳至其实现代码，如果找不到则按照其继承关系向上查找，如果到最终(NSObject)还是没能找到匹配的方法，那就执行<code>消息转发</code>(后续会讲到)。</p>
+
+<p>除了刚才讲到的<code>objc_msgSend</code>外，还有其他的几种处理<code>边界情况</code>的函数：</p>
+
+<pre><code>//处理待发送的消息要返回结构体
+objc_msgSend_stret(id self, SEL op, ...)
+
+//处理待发送的消息返回值是浮点数
+objc_msgSend_fpret(id self, SEL op, ...) 
+
+//处理将消息发送给超类的情况 
+objc_msgSendSuper(struct objc_super *super, SEL op, ...)
+</code></pre>
+
+<p>上面讲到了，<code>objc_msgSend</code>函数会根据<strong>选择子</strong>去查找应该调用的方法实现，<strong>选择子</strong>可以理解为一个标记，它其实就是<code>char *</code>字符串，选择字和方法的实现<code>IMP</code>之间是一对一的关系，<code>runtime</code>里面通过结构体<code>objc_method</code>来存储它们：</p>
+
+<pre><code>typedef struct objc_method *Method;
+struct objc_method {
+    SEL method_name     OBJC2_UNAVAILABLE;
+    char *method_types  OBJC2_UNAVAILABLE;
+    IMP method_imp      OBJC2_UNAVAILABLE;
+}  
+</code></pre>
+
+<h4>runtime如何处理对象</h4>
+
+<p><code>Objective-C</code>是一门基于对象的动态语言，它的动态性是建立在对象上面的，从<code>runtime</code> 源码我们可以看到它是由<code>C语言</code>编写，这可以保证它执行的高效性，编译器在编译期会将对象转换为它里面定义的结构体：</p>
+
+<pre><code>struct objc_object {
+    Class isa  OBJC_ISA_AVAILABILITY;
+};
+</code></pre>
+
+<p>由此可见，每个对象结构体的首个成员变量是<code>Class</code>类的变量，通过它可以知道对象所属的类，通过<code>isa</code>指针可以访问到。<br/>
+比如说我们定义了如下一个类<code>MyClass</code>：</p>
+
+<pre><code>@interface MyClass : NSObject {
+    NSString *name;
+    NSUInteger age;
+}
+</code></pre>
+
+<p>编译器编译<code>MyClass</code>类以后，它的实例变量布局如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  struct MyClass {
+</span><span class='line'>    struct objc_class {
+</span><span class='line'>        Class isa;
+</span><span class='line'>    }
+</span><span class='line'>    NSString *name;
+</span><span class='line'>    NSUInteger age;
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>精简一下，去除<code>struct</code>的壳：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  struct MyClass {
+</span><span class='line'>    Class isa;
+</span><span class='line'>    NSString *name;
+</span><span class='line'>    NSUInteger age;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><code>isa</code>变量的类型是<code>Class</code>，它的定义在<code>runtime</code>程序库里可以找到，它的定义如下：</p>
+
+<pre><code>typedef struct objc_class *Class;  
+</code></pre>
+
+<p>所以由此我们知道<code>isa</code>本身就是一个<code>objc_class</code>类型的指针，同样我们可以在<code>runtime</code>程序库里面找到<code>objc_class</code>的定义：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  struct objc_class {
+</span><span class='line'>    Class isa  OBJC_ISA_AVAILABILITY;
+</span><span class='line'>
+</span><span class='line'>#if !__OBJC2__
+</span><span class='line'>    Class super_class                                        OBJC2_UNAVAILABLE;
+</span><span class='line'>    const char *name                                         OBJC2_UNAVAILABLE;
+</span><span class='line'>    long version                                             OBJC2_UNAVAILABLE;
+</span><span class='line'>    long info                                                OBJC2_UNAVAILABLE;
+</span><span class='line'>    long instance_size                                       OBJC2_UNAVAILABLE;
+</span><span class='line'>    struct objc_ivar_list *ivars                             OBJC2_UNAVAILABLE;
+</span><span class='line'>    struct objc_method_list **methodLists                    OBJC2_UNAVAILABLE;
+</span><span class='line'>    struct objc_cache *cache                                 OBJC2_UNAVAILABLE;
+</span><span class='line'>    struct objc_protocol_list *protocols                     OBJC2_UNAVAILABLE;
+</span><span class='line'>#endif
+</span><span class='line'>
+</span><span class='line'>} OBJC2_UNAVAILABLE;
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>这个结构体存放了类的所有<code>元数据</code>，例如定义了哪些实例变量，定义了哪些方法，超类等。此结构体的首个变量也是<code>isa</code>指针，说明<code>Class</code>本身也是一个<code>Objective-C</code>对象，<code>Class</code>里面的<code>isa</code>指向的类就是<code>元类</code>，用它来定义类对象本身的<code>元数据</code>。也就是说实例对象的<code>isa</code>指针指向它唯一的类对象，而类对象的<code>isa</code>指针指向它唯一的元类。我们知道，类和实例对象都可以发送<code>class</code>消息，从<code>runtime</code>的源码中有这样的定义：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  - class
+</span><span class='line'>  {
+</span><span class='line'>      return (id)isa;
+</span><span class='line'>  }
+</span><span class='line'>  
+</span><span class='line'>  + class
+</span><span class='line'>  {
+</span><span class='line'>     return self;
+</span><span class='line'>  }
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>由上可以看出实例对象的class就是<code>isa</code>指向的class对象，而实例对象的类的class就是自己，这也印证了上面的说法。</p>
+
+<p>在<code>Objective-C</code>中，对象的实例方法存放在它的<code>isa</code>指向的类对象中，类方法存放于类对象的<code>isa</code>指向的元类中，某个类在应用程序范围内，类对象以及它所属的元类只有一个，它们都是<code>单例</code>。</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f445qvvtffj21b00o6e81.jpg" alt="image" /></p>
+
+<p>当我们向某个类的实例化对象发送消息时，实例对象通过它的<code>isa</code>指针找到它所属的类对象，再去类对象的方法列表里面根据<code>选择子</code>查找，如果没有找到就去它父类的类对象里面查找。如果是向类对象调用类方法，类对象先通过它的<code>isa</code>指针找到它的<code>元类</code>，在元类的方法列表里面根据<code>选择子</code>查找需要调用的方法，如果找到了则跳转到方法实现，若没有找到则向它的父类的元类里面查找。</p>
+
+<p>实例对象的类以及元类的关系如下图(图片<a href="www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html">来源</a>)：</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f445qwqwm2j20tg0u4gs1.jpg" alt="image" /></p>
+
+<p>这里需要说明的是：图中类对象<strong>Root class</strong>，也就是<code>NSObject</code>，它的父类是<code>nil</code>，它的<code>元类</code>是<code>NSObject元类</code>，而<code>NSObject元类</code>的元类指向自己，父类指向<code>NSObject</code>类对象，这样刚好形成一个环，可能是苹果设计的需要，因为<code>NSObject</code>里面有很多定义好的行为，比如内存管理，空间开辟等，让所有的类对象都收敛于<code>NSObject</code>，便于统一管理。</p>
+
+<p>好了，说了这么多，下面来做个简单的练习，热热身😃，首先贴出<code>object_getClass</code>方法的实现：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  Class object_getClass(id obj)
+</span><span class='line'>  {
+</span><span class='line'>     if(obj)  return obj-&gt;isa;
+</span><span class='line'>     else return Nil;
+</span><span class='line'>  }
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>也就是说这个方法会返回传入对象的<code>isa</code>指向。</p>
+
+<p>以下是输出每行对象的内存地址：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  Class class1 = [NSObject class];//0x90620c ①
+</span><span class='line'>  id obj1 = [NSObject valueForKey:@"isa"];//0x906220 ②
+</span><span class='line'>  id obj2 = [obj1 valueForKey:@"isa"];//0x90620  ③
+</span><span class='line'>  NSObject *object = [NSObject new];
+</span><span class='line'>  Class class2 = objc_getMetaClass("NSObject");//0x906220 ④
+</span><span class='line'>  Class class3 = object_getClass(object);//0x90620c ⑤
+</span><span class='line'>  Class class4 = class_getSuperclass(class1);//0x0 ⑥
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>①⑤的指向相同，②③④指向相同，⑥指向nil。<br/>
+① 对<code>NSObject</code>调用<code>class</code>方法返回<code>NSObject</code>类对象本身。<br/>
+② 获取<code>NSObject</code>类对象的<code>isa</code>变量，它指向<code>NSObject</code>类对象的元类。<br/>
+③ 获取<code>NSObject</code>元类的<code>isa</code>变量，它和②的指向一样，说明<strong>NSObject元类</strong>的<strong>isa</strong>指向了<strong>NSObject类对象</strong>自身，和上图中的指向一致。<br/>
+④ 获取<strong>NSObject类对象</strong>的元类。<br/>
+⑤ 获取<strong>NSObject</strong>实例对象的<code>isa</code>指向，其实就是<strong>NSObject类对象</strong>，所以和①的值相同。<br/>
+⑥ 获取<strong>NSObject类对象</strong>的父类，打印<strong>nil</strong>，和上图中标明的一致。</p>
+
+<p>再来一个例子：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  @interface NSObject (Mycategory)
+</span><span class='line'>  + (void)foo;
+</span><span class='line'>  @end
+</span><span class='line'>  
+</span><span class='line'>  @implementation NSObject (Mycategory)
+</span><span class='line'>  - (void)foo
+</span><span class='line'>  {
+</span><span class='line'>       NSLog(@"%s",__PRETTY_FUNCTION__);
+</span><span class='line'>  }
+</span><span class='line'>  
+</span><span class='line'>@end
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>如果执行下面的代码会输出什么呢？ 😖</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[NSObject foo]; //①
+</span><span class='line'>[[NSObject new] performSelector:@selector(foo)];  //②
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>①:对<code>NSObject</code>发送<code>foo</code>消息，会到<strong>NSObject类对象</strong>的元类中查找，理所当然没能找到，然后去到<strong>NSObject类对象元类</strong>的父类里面查找，它的父类是<code>NSObject</code>，然后在<code>NSObject类对象</code>的方法列表里面查找，这时找到了<code>- (void)foo</code>方法，然后跳到函数入口处执行，输出：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-[NSObject(Mycategory) foo]    </span></code></pre></td></tr></table></div></figure>
+
+
+<p>②:首先初始化一个<strong>NSObject</strong>实例对象，然后发送<code>foo</code>消息，这是会到<code>NSObject类对象</code>里面查找，这是找到了<code>- (void)foo</code>方法，然后跳到函数入口处执行，输出：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> -[NSObject(Mycategory) foo]  
+</span><span class='line'> </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h4>self和super</h4>
+
+<ul>
+<li>在实例方法中<code>self</code>代表着<code>对象</code>本身。</li>
+<li>在类方法中，<code>self</code>代表当前<code>类</code>。</li>
+</ul>
+
+
+<p>万变不离其宗，记住一句话就行了：<code>self</code>代表着当前方法的调用者。<br/>
+上面讲到了，在<code>Objective-C</code>中对<code>super</code>发送消息时，编译后会被转换为：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> objc_msgSendSuper(struct objc_super *super, SEL op, ...)
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>接下来我们看看<code>super</code>指针的类型<code>objc_super</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  /// Specifies the superclass of an instance. 
+</span><span class='line'>struct objc_super {
+</span><span class='line'>    /// Specifies an instance of a class.
+</span><span class='line'>    __unsafe_unretained id receiver;
+</span><span class='line'>
+</span><span class='line'>    /// Specifies the particular superclass of the instance to message. 
+</span><span class='line'>#if !defined(__cplusplus)  &&  !__OBJC2__
+</span><span class='line'>    /* For compatibility with old objc-runtime.h header */
+</span><span class='line'>    __unsafe_unretained Class class;
+</span><span class='line'>#else
+</span><span class='line'>    __unsafe_unretained Class super_class;
+</span><span class='line'>#endif
+</span><span class='line'>    /* super_class is the first class to search */
+</span><span class='line'>};
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>通过上面的结构我们可以看出：对<code>super</code>发送消息，<code>receiver</code>还是<code>self</code>，唯一的区别是查找方法时不是从本类开始，而是从<code>super_class</code>开始。下面我们来看看一个测试：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@interface Father : NSObject
+</span><span class='line'>
+</span><span class='line'>@end
+</span><span class='line'>
+</span><span class='line'>@implementation Father
+</span><span class='line'>
+</span><span class='line'>@end
+</span><span class='line'>
+</span><span class='line'>@interface Son : Father
+</span><span class='line'>
+</span><span class='line'>@end
+</span><span class='line'>
+</span><span class='line'>@implementation Son
+</span><span class='line'>
+</span><span class='line'>- (instancetype)init
+</span><span class='line'>{
+</span><span class='line'>    self = [super init];
+</span><span class='line'>    if (self) {
+</span><span class='line'>        NSLog(@"%@",NSStringFromClass([self class]));
+</span><span class='line'>        NSLog(@"%@",NSStringFromClass([super class]));
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>    return self;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>@end
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行结果都是输出：<code>Son</code>。由于<code>class</code>在基类<code>NSObject</code>里面有实现，所以两个输出都是输出调用者自己所属的类，这里都输出了<code>Son</code>，而没有输出<code>Father</code>，所以说<code>super</code>只是一个标记符，标记消息的查找是从<code>superClass</code>开始，其他和<code>self</code>没有任何区别。</p>
+
+<h4>Method Swizzling</h4>
+
+<p>我们有时候为了调试方便或者想对系统的方法进行自定义的改造，这是我们可以利用<code>Method Swizzling</code>来进行方法实现的交换。<br/>
+对方法的交换我们可以在<code>load</code>或者<code>initialize</code>里面进行，但是需要根据自己的需要进行选择，它们的区别如下：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f445qxsptrj219m0oo1kk.jpg" alt="image" /></p>
+
+<p>方法的交换就是更改选择子(selector)所对应的<code>IMP</code>，如下：</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f445qynrpmj20p40fsapj.jpg" alt="image" /></p>
+
+<p>下面贴上一段<code>Method Swizzling</code>(方法调配)的示例：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  - (void)load
+</span><span class='line'>{
+</span><span class='line'>    static dispatch_once_t onceToken;
+</span><span class='line'>    dispatch_once(&onceToken, ^{
+</span><span class='line'>        Class currentClass = [self class];
+</span><span class='line'>        SEL originSelector = @selector(foo);
+</span><span class='line'>        SEL swizzedSelector = @selector(st_foo);
+</span><span class='line'>        
+</span><span class='line'>        Method originMethod = class_getInstanceMethod(currentClass, originMethod);
+</span><span class='line'>        Method swizzedMethod = class_getInstanceMethod(currentClass, swizzedSelector);
+</span><span class='line'>        if (class_addMethod(currentClass, originSelector, method_getImplementation(swizzedMethod), method_getTypeEncoding(swizzedMethod))) {
+</span><span class='line'>            class_addMethod(currentClass, swizzedSelector, method_getImplementation(originMethod), method_getTypeEncoding(originMethod));
+</span><span class='line'>        } else {
+</span><span class='line'>            method_exchangeImplementations(originMethod, swizzedMethod);
+</span><span class='line'>        }
+</span><span class='line'>    });
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>这里需要说明的是<code>if</code>条件里面的判断，如果为真则表示<code>currentClass</code>没有<code>originSelector</code>的方法，然后进行该方法的添加，如果为假则表示<code>currentClass</code>里面已经有了<code>originSelector</code>方法。这里这么做的原因是我们只想对当前类进行方法调配，而不想对父类造成影响。比如当前类的父类里面有一个方法，当前类没有进行覆盖，当我们在当前类里进行<code>方法调配</code>对这个方法的实现进行重新定义，如果直接进行<code>method_exchangeImplementations</code>则交换的是父类的方法。结果会与我们预想的不符。</p>
+
+<h4>消息转发</h4>
+
+<p>前面讲了<code>Objective-C</code>里面的<code>消息传递</code>机制，当我们向一个对象传递一个消息，而当程序运行中无法找到该消息对应的实现，这是就会启动<code>消息转发</code>(message forwarding)机制，这个时候我们可以进行一些操作来防止程序crash。<br/>
+我们经常遇到程序异常，控制台输出：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '-[ViewController TestMessage]: unrecognized selector sent to instance 0x7fd41075b6a0'
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>这就是向对象传递了无法识别的消息报的异常信息。我们在开发中，可以在进入<code>消息转发</code>后执行预定的逻辑，从而避免奔溃。</p>
+
+<p><code>消息转发</code>大致分为三个步奏：</p>
+
+<h6>1、动态方法解析</h6>
+
+<p>对象在接收到无法识别的消息后，会首先调用所属类的下列方法：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  + (BOOL)resolveClassMethod:(SEL)sel;//对于类方法
+</span><span class='line'>  + (BOOL)resolveInstanceMethod:(SEL)sel;//对于实例方法
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>参数就是无法识别的<code>选择子</code>，这时我们可以在该方法里面为该选择子添加一个实现，返回<code>YES</code>，系统会对该方法再进行一次传递，这时就能正常运行了，但它的前提是添加的实现必须是已经定义好的。如果返回<code>NO</code>，则会就行下一步(下面会说到)，这里贴出简单的示例代码：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>+ (BOOL)resolveInstanceMethod:(SEL)sel
+</span><span class='line'>{
+</span><span class='line'>    NSString *selectorString = NSStringFromSelector(sel);
+</span><span class='line'>    if ([selectorString isEqualToString:@"foo"]) {
+</span><span class='line'>        Method myMethod = class_getInstanceMethod(self, @selector(myFoo));
+</span><span class='line'>        class_addMethod(self, sel, method_getImplementation(myMethod), method_getTypeEncoding(myMethod));
+</span><span class='line'>        return YES;
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>    return NO;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h6>2、备援接受者</h6>
+
+<p>如果步骤一未能处理，运行期系统则会看看能不能把消息转发到其他对象，因为当前类肯定<code>组合</code>了一些其他的对象，这时调用：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> - (id)forwardingTargetForSelector:(SEL)aSelector; 
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>若当前对象能找到合适的消息接受者，则将该接受者返回，若找不到则返回nil，消息转发会进行下一步，这里需要注意的是，未知消息到了这里只能将消息的转发给其他对象，无法修改消息的内容。</p>
+
+<h6>3、完整的消息转发</h6>
+
+<p>如果前两步都没能将未知消息进行有效的处理，则会进入<code>完整的消息转发</code>，首先需要重写<code>methodSignatureForSelector:</code>方法来获取未知消息的参数和返回值类型，如果这个方法里返回<code>nil</code>则消息转发结束，系统发出<code>doesNotRecognizeSelector:</code>消息，然后就挂掉了，如果返回一个签名函数，<code>runtime</code>就会创建一个<code>NSInvocation</code>对象，把未知消息相关的全部细节封装在里面：选择子、target、参数。然后发送<code>-forwardInvocation:</code>消息。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  - (NSMethodSignature *) methodSignatureForSelector : (SEL)selector
+</span><span class='line'>  {  
+</span><span class='line'>    NSMethodSignature *signature = [super methodSignatureForSelector:selector];  
+</span><span class='line'>      
+</span><span class='line'>    if(nil == signature){  
+</span><span class='line'>        signature = [self.otherObject methodSignatureForSelector:selector];  
+</span><span class='line'>    }  
+</span><span class='line'>    
+</span><span class='line'>    return signature;  
+</span><span class='line'>} 
+</span><span class='line'>  
+</span><span class='line'>  - (void)forwardInvocation:(NSInvocation *)invocation {  
+</span><span class='line'>    SEL selector = [invocation selector];  
+</span><span class='line'>      
+</span><span class='line'>    if([self.otherObject respondsToSelector:selector]){  
+</span><span class='line'>        [invocation invokeWithTarget:self.otherObject];  
+</span><span class='line'>    }  
+</span><span class='line'>} 
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>综合起来如下图所示：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f445r01c5qj21f80uk4qq.jpg" alt="image" /></p>
+
+<h6>参考</h6>
+
+<p><a href="http://opensource.apple.com//source/objc4/">runtime源码</a><br/>
+<a href="http://tech.glowing.com/cn/objective-c-runtime/">http://tech.glowing.com/cn/objective-c-runtime/</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">梁炜V</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-05-22T14:46:14+08:00'><span class='date'>2016 年5 月22 日</span> <span class='time'>2:46 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://summertreee.github.io/blog/2016/05/22/wo-suo-li-jie-de-runtime/" data-via="" data-counturl="http://summertreee.github.io/blog/2016/05/22/wo-suo-li-jie-de-runtime/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/" title="Previous Post: 定制自己的单元测试">&laquo; 定制自己的单元测试</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>最新文章</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/28/swiftjiao-ben-bian-ji/">Swift脚本编辑</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/">面试精选：链表问题集锦</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - 梁炜V -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'summertreee';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://summertreee.github.io/blog/2016/05/22/wo-suo-li-jie-de-runtime/';
+        var disqus_url = 'http://summertreee.github.io/blog/2016/05/22/wo-suo-li-jie-de-runtime/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

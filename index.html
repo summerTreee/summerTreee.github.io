@@ -9,7 +9,8 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="我们在进行开发的过程中，会对新开发的功能进行但愿测试，不管是TDD还是BDD，我们都需要利用单元测试来保证我们新功能的正确性，这其中包括执行结果是否正确，对边界处理是否周全，一些特殊情况的测试，这对于一些功能较少的工程可能写好一个testXXX函数，执行一遍单元测试，不会花太多时间， &hellip;">
+  <meta name="description" content="Objective-C是一门基于对象的动态语言，它里面所有的继承自NSObject的类本身以及类所实例化的对象都是对象，好像有点儿绕，大意就是这是一门基于对象的语言，就连类自己也是一个对象，程序运行起来以后类本身也会被初始化，也占有内存空间。
+在这篇笔记里，我会记录如下的一些信息： 消息传递 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-05-22T14:46:14+08:00'><span class='date'>2016 年5 月22 日</span> <span class='time'>2:46 pm</span></time>
+        
+           | <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2016/05/22/wo-suo-li-jie-de-runtime/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Objective-C是一门基于对象的动态语言，它里面所有的继承自<code>NSObject</code>的类本身以及类所实例化的对象都是对象，好像有点儿绕，大意就是这是一门基于对象的语言，就连类自己也是一个对象，程序运行起来以后类本身也会被初始化，也占有内存空间。<br/>
+在这篇笔记里，我会记录如下的一些信息：</p>
+
+<ul>
+<li>消息传递</li>
+<li>runtime如何处理对象</li>
+<li>self 和 super</li>
+<li>Method Swizzling</li>
+<li>消息转发</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">阅读全文 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -452,57 +500,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/">Xcode控制台打印CGRect</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-15T21:15:58+08:00'><span class='date'>2015 年6 月15 日</span> <span class='time'>9:15 pm</span></time>
-        
-           | <a href="/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/#disqus_thread"
-             data-disqus-identifier="http://summertreee.github.io/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>在用Xcode调试开发的时候，我们经常需要在控制台打印某个视图的frame，以前的时候相当麻烦，但是从Xcode6.3以后，打印frame变得很简单：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>// Before
-</span><span class='line'>(lldb) p (CGRect) [self frame]
-</span><span class='line'>(CGRect) $0 = (origin = (x = 0, y = 0), size = (width = 50, height = 100))
-</span><span class='line'> 
-</span><span class='line'>// After
-</span><span class='line'>(lldb) expr @import UIKit
-</span><span class='line'>(lldb) p self.frame
-</span><span class='line'>(CGRect) $1 = (origin = (x = 0, y = 0), size = (width = 50, height = 100))
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -518,6 +515,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a>
       </li>
     
@@ -531,10 +532,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a>
       </li>
     
   </ul>

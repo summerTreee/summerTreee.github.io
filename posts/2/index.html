@@ -9,7 +9,17 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="这段时间要将公司项目中的网络引擎由ASIHTTPRequest替换为AFNetworking,替换的过程比较曲折，在此记录下自己替换过程中得心得： 1、建立数据请求中介者 建立中介者是指项目中的数据请求都通过它去实现，而不是每一个数据请求都直接与AFNetworking打交道，这样做的好处是： &hellip;">
+  <meta name="description" content="在用Xcode调试开发的时候，我们经常需要在控制台打印某个视图的frame，以前的时候相当麻烦，但是从Xcode6.3以后，打印frame变得很简单： 1
+2
+3
+4
+5
+6
+7
+8
+// Before
+(lldb) p (CGRect) [self frame]
+(CGRect) $0 = ( &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +75,57 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/">Xcode控制台打印CGRect</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-15T21:15:58+08:00'><span class='date'>2015 年6 月15 日</span> <span class='time'>9:15 pm</span></time>
+        
+           | <a href="/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2015/06/15/xcodekong-zhi-tai-da-yin-cgrect/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在用Xcode调试开发的时候，我们经常需要在控制台打印某个视图的frame，以前的时候相当麻烦，但是从Xcode6.3以后，打印frame变得很简单：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// Before
+</span><span class='line'>(lldb) p (CGRect) [self frame]
+</span><span class='line'>(CGRect) $0 = (origin = (x = 0, y = 0), size = (width = 50, height = 100))
+</span><span class='line'> 
+</span><span class='line'>// After
+</span><span class='line'>(lldb) expr @import UIKit
+</span><span class='line'>(lldb) p self.frame
+</span><span class='line'>(CGRect) $1 = (origin = (x = 0, y = 0), size = (width = 50, height = 100))
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -128,6 +189,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a>
       </li>
     
@@ -141,10 +206,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/23/ioszhong-ru-he-zai-%5B%3F%5D-ge-gong-cheng-chuang-jian-duo-ge-app/">iOS中如何在一个工程创建多个App</a>
       </li>
     
   </ul>
