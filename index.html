@@ -9,8 +9,7 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="Objective-C是一门基于对象的动态语言，它里面所有的继承自NSObject的类本身以及类所实例化的对象都是对象，好像有点儿绕，大意就是这是一门基于对象的语言，就连类自己也是一个对象，程序运行起来以后类本身也会被初始化，也占有内存空间。
-在这篇笔记里，我会记录如下的一些信息： 消息传递 &hellip;">
+  <meta name="description" content="在iOS9中，苹果为iPhone增加了低电量模式，开启低电量模式后，系统会为了节约电量而停止一些耗电的行为，例如接收邮件，通过Hey Siri唤起，后台消息推送等。 很重要的一点是系统不会为用户自动打开低电量模式，而是由用户自己去决定是否进入低电量模式，进入低电量模式后状态栏中的电池会变为黄色： ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,45 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/">如何检测iPhone设备处于低电量模式</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-06-12T20:52:53+08:00'><span class='date'>2016 年6 月12 日</span> <span class='time'>8:52 pm</span></time>
+        
+           | <a href="/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在iOS9中，苹果为iPhone增加了低电量模式，开启低电量模式后，系统会为了节约电量而停止一些耗电的行为，例如接收邮件，通过<code>Hey Siri</code>唤起，后台消息推送等。</p>
+
+<p>很重要的一点是系统不会为用户自动打开低电量模式，而是由用户自己去决定是否进入低电量模式，进入低电量模式后状态栏中的电池会变为黄色：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/">阅读全文 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -453,53 +491,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">App中拨打电话一点小总结</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-08-23T12:27:08+08:00'><span class='date'>2015 年8 月23 日</span> <span class='time'>12:27 pm</span></time>
-        
-           | <a href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/#disqus_thread"
-             data-disqus-identifier="http://summertreee.github.io/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>App内发起电话拨打的一点小技巧</h3>
-
-<h4>一、拨打电话</h4>
-
-<p>在App内发起电话拨打主要有两种方式：</p>
-
-<p>1、利用这种方式发起的电话拨打，通话结束后不会直接返回App内，而是停留在通信录里面：</p>
-
-<pre><code> NSString *str = [[NSString alloc] initWithFormat:@"tel:%@",@"131xxxx1909"];
-[[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
-</code></pre>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">阅读全文 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -515,6 +506,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/">如何检测iPhone设备处于低电量模式</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a>
       </li>
     
@@ -528,10 +523,6 @@
     
       <li class="post">
         <a href="/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/">面试精选：链表问题集锦</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
       </li>
     
   </ul>

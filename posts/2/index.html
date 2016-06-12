@@ -9,17 +9,7 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="在用Xcode调试开发的时候，我们经常需要在控制台打印某个视图的frame，以前的时候相当麻烦，但是从Xcode6.3以后，打印frame变得很简单： 1
-2
-3
-4
-5
-6
-7
-8
-// Before
-(lldb) p (CGRect) [self frame]
-(CGRect) $0 = ( &hellip;">
+  <meta name="description" content="App内发起电话拨打的一点小技巧 一、拨打电话 在App内发起电话拨打主要有两种方式： 1、利用这种方式发起的电话拨打，通话结束后不会直接返回App内，而是停留在通信录里面： NSString *str = [[NSString alloc] initWithFormat:@"tel:%@",@" &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +65,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">App中拨打电话一点小总结</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-23T12:27:08+08:00'><span class='date'>2015 年8 月23 日</span> <span class='time'>12:27 pm</span></time>
+        
+           | <a href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>App内发起电话拨打的一点小技巧</h3>
+
+<h4>一、拨打电话</h4>
+
+<p>在App内发起电话拨打主要有两种方式：</p>
+
+<p>1、利用这种方式发起的电话拨打，通话结束后不会直接返回App内，而是停留在通信录里面：</p>
+
+<pre><code> NSString *str = [[NSString alloc] initWithFormat:@"tel:%@",@"131xxxx1909"];
+[[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
+</code></pre>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/08/23/appzhong-bo-da-dian-hua-%5B%3F%5D-dian-xiao-zong-jie/">阅读全文 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -189,6 +226,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/">如何检测iPhone设备处于低电量模式</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a>
       </li>
     
@@ -202,10 +243,6 @@
     
       <li class="post">
         <a href="/blog/2016/03/27/mian-shi-jing-xuan-:lian-biao-wen-ti-ji-jin/">面试精选：链表问题集锦</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/iosce-shi-zhi-uiautomationjie-shao/">iOS测试之UIAutomation介绍</a>
       </li>
     
   </ul>
