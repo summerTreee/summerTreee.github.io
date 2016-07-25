@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2016-06-12T20:54:14+08:00</updated>
+  <updated>2016-07-25T13:29:33+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -12,6 +12,432 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[布局万花筒：uicolletionview]]></title>
+    <link href="http://summertreee.github.io/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview/"/>
+    <updated>2016-07-25T13:28:11+08:00</updated>
+    <id>http://summertreee.github.io/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview</id>
+    <content type="html"><![CDATA[<p><strong>UICollectionView</strong>是iOS6的时候引入的，它同<strong>UITableView</strong>共享一套API设计，都是基于<strong>datasource和delegate</strong>，都继承自<strong>UIScrollView</strong>。但它又与<strong>UITableView</strong>有很大不同，它进行了进一步的抽象，将它的所有子视图的位置、大小、transform委托给了一个单独的布局对象：<code>UICollectionViewLayout</code>。这是一个抽象类，我们可以继承它来实现任何想要的布局，系统也为我们提供了一个开箱即食的实现<code>UICollectionViewFlowLayout</code>。在我看来，没有任何排列布局是<code>UICollectionViewLayout</code>不能实现的，如果有那就自定义一个。</p>
+
+<p><strong>UITableView</strong>只能提供竖直滑动的布局，而且默认情况下<strong>cell</strong>的宽度和tableView的宽度一致，而且<strong>cell</strong>的排列顺序也是挨次排列。<strong>UICollectionView</strong>则为我们提供了另一种可能：它能提供竖直滑动的布局也能提供水平滑动的布局，而且<strong>cell</strong>的位置、大小等完全由你自己决定。所以我们在遇到水平滑动的布局时，不要忙着用<strong>UIScrollView</strong>去实现，可以先考虑<strong>UICollectionView</strong>能不能满足要求，还有一个好处是你不要自己考虑滑动视图(cell)重用的问题。</p>
+
+<p>这篇文章会讲解如何自定义<code>UICollectionViewLayout</code>来实现任意布局，默认你已经会使用系统提供的<code>UICollectionViewFlowLayout</code>来进行标准的<strong>Grid View</strong>布局了。</p>
+
+<h5>1、UICollectionViewFlowLayout</h5>
+
+<p>系统为我们提供了一个自定义的布局实现：<strong>UICollectionViewFlowLayout</strong>，通过它我们可以实现<strong>Grid View</strong>类型的布局，也就是像一个一个格了挨次排列的布局，对于大多数的情况，使用它就能满足我们的要求了。系统为我们提供了布局所需的参数，我们在使用的时候只需要去确定这些参数就行：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewFlowLayout : UICollectionViewLayout
+</span><span class='line'>
+</span><span class='line'>@property (nonatomic) CGFloat minimumLineSpacing;
+</span><span class='line'>@property (nonatomic) CGFloat minimumInteritemSpacing;
+</span><span class='line'>@property (nonatomic) CGSize itemSize;
+</span><span class='line'>@property (nonatomic) CGSize estimatedItemSize NS_AVAILABLE_IOS(8_0); // defaults to CGSizeZero - setting a non-zero size enables cells that self-size via -preferredLayoutAttributesFittingAttributes:
+</span><span class='line'>@property (nonatomic) UICollectionViewScrollDirection scrollDirection; // default is UICollectionViewScrollDirectionVertical
+</span><span class='line'>@property (nonatomic) CGSize headerReferenceSize;
+</span><span class='line'>@property (nonatomic) CGSize footerReferenceSize;
+</span><span class='line'>@property (nonatomic) UIEdgeInsets sectionInset;
+</span><span class='line'>
+</span><span class='line'>// Set these properties to YES to get headers that pin to the top of the screen and footers that pin to the bottom while scrolling (similar to UITableView).
+</span><span class='line'>@property (nonatomic) BOOL sectionHeadersPinToVisibleBounds NS_AVAILABLE_IOS(9_0);
+</span><span class='line'>@property (nonatomic) BOOL sectionFootersPinToVisibleBounds NS_AVAILABLE_IOS(9_0);
+</span><span class='line'>
+</span><span class='line'>@end
+</span><span class='line'>  
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><strong>Grid View</strong>样式的<code>UICollectionView</code>如下所示：</p>
+
+<p><img src="http://ww1.sinaimg.cn/mw690/8f7a6fe0jw1f662t6s0soj20eu0oagmn.jpg" alt="image" /></p>
+
+<p>如果上面所说的<strong>Grid View</strong>类型的布局不能满足我们的需求，这时就需要自定义一个<strong>Layout</strong>。</p>
+
+<h5>2、UICollectionViewLayout VS UICollectionViewFlowLayout</h5>
+
+<p><strong>UICollectionViewFlowLayout</strong>继承自<strong>UICollectionViewLayout</strong>，我们可以直接使用它，我们只需要提供<strong>cell</strong>的大小，以及行间距、列间距，它就会自己计算出每个<strong>cell</strong>的位置以及<strong>UICollectionView</strong>的滑动范围<strong>contentSize</strong>。但它只能提供一个方向的滑动，也就是说我们自定义的类如果继承自<strong>UICollectionViewFlowLayout</strong>，则只能是在一个方向上滑动的布局，要么水平方向要么竖直方向。 反之，则需要继承自<strong>UICollectionViewLayout</strong>，<strong>UICollectionViewLayout</strong>是一个抽象类，不能直接使用。</p>
+
+<h5>3、自定义布局需要实现的方法</h5>
+
+<p><a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UICollectionViewLayout_class/index.html">UICollectionViewLayout文档</a>为我们列出了需要实现的方法：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0jw1f662wfm214j20sq0ckmzq.jpg" alt="image" /></p>
+
+<p>以上列出的这六个方法不是都需要我们自己实现的，而是根据需要，选择其中的某些方法实现。</p>
+
+<h6>collectionViewContentSize</h6>
+
+<p><strong>UICollection</strong>继承自<strong>UIScrollView</strong>，我们都知道<strong>UIScrollView</strong>的一个重要参数：<strong>contentSize</strong>,如果这个参数不对，那么你布局的内容就不能完全展示，而<strong>collectionViewContentSize</strong>就是为了得到这个参数，<strong>UICollection</strong>就像一个画板，而<strong>collectionViewContentSize</strong>则规定了画板的大小，如果是继承自<strong>UICollectionViewFlowLayout</strong>，而且每个<strong>section</strong>里面的cell大小是通过UICollectionViewFlowLayout的参数设定的，大小和位置也不在自定义的过程中随意更改，那么<em>collectionViewContentSize</em>是可以不自己重写的，系统会自己计算<strong>contentSize</strong>，如果是继承自<strong>UICollectionViewLayout</strong>，那就需要根据你自己的展示布局去提供合适的CGSize给<strong>collectionViewContentSize</strong>。</p>
+
+<h5>layoutAttributesForElementsInRect</h5>
+
+<p>这个方法的参数是<strong>UICollectionView</strong>当前的<strong>bounds</strong>，也就是视图当前的可见区域，返回值是一个包含对象为<strong>UICollectionViewLayoutAttributes</strong>的数组，<strong>UICollectionView</strong>的可见区域内包含<code>cell、supplementary view、decoration view</code>(这里统称cell，因为它们都是collectionView的一个子视图)，它们的位置、大小等信息都由对应的<strong>UICollectionViewLayoutAttributes</strong>控制。默认情况下这个<strong>LayoutAttributes</strong>包含indexPath、frame、center、size、transform3D、alpha以及hidden属性。如果你还需要控制其他的属性，你可以自己自定义一个<strong>UICollectionViewLayoutAttributes</strong>的子类，加上任意你想要的属性。</p>
+
+<p>布局属性对象(UICollectionViewLayoutAttributes)通过<strong>indexPath</strong>和<strong>cell</strong>关联起来，当<strong>collectionView</strong>展示<strong>cell</strong>时，会通过这些布局属性对象拿到布局信息。</p>
+
+<p>返回原话题，<strong>layoutAttributesForElementsInRect</strong>方法的返回值是一个数组，这个数组里面是传递进来的可见区域内的<strong>cell</strong>所对应的<strong>UICollectionViewLayoutAttributes</strong>。</p>
+
+<p>要拿到可见区域内的布局属性，通常的做法如下：<br/>
+1、如果你是继承自<strong>UICollectionViewFlowLayout</strong>，并且设置好了itemSize、行间距、列间距等信息，那么你通过<code>[super layoutAttributesForElementsInRect:rect]</code>就能拿到可见区域内的布局属性，反之，则进入步奏2。<br/>
+2、创建一个空数组，用于存放可见区域内的布局属性。<br/>
+3、从<strong>UICollectionView</strong>的数据源中取出你需要展示的数据，然后根据你想要的布局计算出哪些<strong>indexPath</strong>在当前可见区域内，通过<code>CGRectIntersectsRect</code>函数可以判断两个<code>CGRect</code>是否有交集来确定。然后循环调用<code>layoutAttributesForItemAtIndexPath:</code>来确定每一个布局属性的frame等数据。同样，如果当前区域内有<code>supplementary view</code>或者<code>decoration view</code>，你也需要调用：<code>layoutAttributesForSupplementaryViewOfKind:atIndexPath</code>或者<code>layoutAttributesForDecorationViewOfKind:atIndexPath</code>，最后将这些布局属性添加到数组中返回。这里需要多说一点的是，有些布局属性在<strong>UICollectionViewLayout</strong>的<code>prepareLayout</code>就根据数据源全部计算了出来，比如瀑布流样式的布局，这个时候你就只需要返回布局属性的frame和当前可见区域有交集的对象就行。</p>
+
+<h6>layoutAttributesFor…IndexPath</h6>
+
+<p>这里用三个点，是因为有三个类似的方法:</p>
+
+<ul>
+<li>layoutAttributesForItemAtIndexPath:</li>
+<li>layoutAttributesForSupplementaryViewOfKind:atIndexPath:</li>
+<li>layoutAttributesForDecorationViewOfKind:atIndexPath:</li>
+</ul>
+
+
+<p>它们分别为<strong>cell、supplementaryView、decorationView</strong>返回布局属性，它们的实现不是必须的，它们只是为对应的<code>IndexPath</code>返回布局属性，如果你能通过其他方法拿到对应<code>indexPath</code>处的布局属性，那就没必要非要实现这几个方法。</p>
+
+<p>以<code>layoutAttributesForItemAtIndexPath:</code>为例，你可以通过<code>+[UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:]</code>方法拿到一个布局属性对象，然后你可能需要访问你的数据源去算出该<code>indexPath</code>处的布局属性的frame等信息，然后赋值给它。</p>
+
+<h6>shouldInvalidateLayoutForBoundsChange</h6>
+
+<p>这个是用来告诉<code>collectionView</code>是否需要根据bounds的改变而重新计算布局属性，比如横竖屏的旋转。通常的写法如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+</span><span class='line'>{
+</span><span class='line'>    CGRect oldBounds = self.collectionView.bounds;
+</span><span class='line'>    if (CGRectGetWidth(newBounds) != CGRectGetWidth(oldBounds)) {
+</span><span class='line'>        return YES;
+</span><span class='line'>    }
+</span><span class='line'>        return NO;
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>需要注意的是，当在滑动的过程中，需要对某些<strong>cell</strong>的布局进行更改，那么就需要在这个方法里面返回<code>YES</code>，告诉<strong>UICollectionView</strong>重新计算布局。因为一个<strong>cell</strong>的改变会引起整个<strong>UICollectionView</strong>布局的改变。</p>
+
+<h5>4、示例一：瀑布流实现</h5>
+
+<p>瀑布流的排列一般用于图片或者商品的展示，它的布局特点是等宽变高，<strong>cell</strong>的排列是找到最短的那一列，然后把cell放到那个位置，效果如下：</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0jw1f662nmt5zbg208m0buwgk.gif" alt="image" /></p>
+
+<p>下面我们来看看具体的实现，这里的布局行间距和列间距都定位10，列数固定为3列，如上图所示。</p>
+
+<p>系统提供给我们的<code>UICollectionViewFlowLayout</code>显然不能实现瀑布流的布局，因为它的默认实现是一行一列整齐对齐的，所以我们需要新建一个继承自<code>UICollectionViewFlowLayout</code>的类，然后来讲解一下这个类的实现。</p>
+
+<h6>prepareLayout</h6>
+
+<p>在讲解如何布局瀑布流之前需要先说明一下<code>UICollectionViewFlowLayout</code>的<strong>prepareLayout</strong>方法，他会在<code>UICollectionView</code>布局之前调用，调用<code>[self.collectionView reloadData]</code>和<code>[self.collectionView.collectionViewLayout invalidateLayout]</code>的时候<strong>prepareLayout</strong>也会进行调用，如果<code>shouldInvalidateLayoutForBoundsChange</code>返回<strong>YES</strong>，<strong>prepareLayout</strong>方法同样也会调用。所以这个函数是提前进行数据布局计算的绝佳地方。</p>
+
+<p>在进行瀑布流布局的时候我们可以在<code>prepareLayout</code>里面根据数据源，计算出所有的布局属性并缓存起来：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  - (void)prepareLayout {
+</span><span class='line'>    [super prepareLayout];
+</span><span class='line'>    //记录布局需要的contentSize的高度
+</span><span class='line'>    self.contentHeight = 0;
+</span><span class='line'>    //columnHeights数组会记录各列的当前布局高度
+</span><span class='line'>    [self.columnHeights removeAllObjects];
+</span><span class='line'>    
+</span><span class='line'>    //默认高度是sectionEdge.top
+</span><span class='line'>    for (NSInteger i = 0; i &lt; self.columnCount; i++) {
+</span><span class='line'>        [self.columnHeights addObject:@(self.edgeInsets.top)];
+</span><span class='line'>    }
+</span><span class='line'>    //清除之前所以的布局属性数据
+</span><span class='line'>    [self.attrsArray removeAllObjects];
+</span><span class='line'>    //通过数据源拿到需要展示的cell数量
+</span><span class='line'>    NSInteger count = [self.collectionView numberOfItemsInSection:0];
+</span><span class='line'>    //开始创建每一个cell对应的布局属性
+</span><span class='line'>    for (NSInteger index = 0; index &lt; count; index++) {
+</span><span class='line'>        //创建indexPath
+</span><span class='line'>        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+</span><span class='line'>        //获取cell布局属性,在layoutAttributesForItemAtIndexPath里面计算具体的布局信息
+</span><span class='line'>        UICollectionViewLayoutAttributes *attrs = [self layoutAttributesForItemAtIndexPath:indexPath];
+</span><span class='line'>        [self.attrsArray addObject:attrs];
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>在<code>layoutAttributesForItemAtIndexPath</code>方法里面去根据参数<strong>indexPath</strong>拿到数据源里面对应位置的展示数据，根据等宽的前提，等比例的获得布局属性的高度，然后根据记录每列当前布局到的高度的数组<code>columnHeights</code>来找到当前布局最短的那一列，从而获取到布局属性的<code>origin</code>信息，这样在等宽的前提下就获取到了当前<code>indexPath</code>处的布局属性的<code>frame</code>信息。然后更新<code>columnHeights</code>里面的数据，并且让记录布局所需高度的变量<code>contentHeight</code>等于当前列高度数组里面的最大值。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+</span><span class='line'>    //获取一个UICollectionViewLayoutAttributes对象
+</span><span class='line'>    UICollectionViewLayoutAttributes *attrs = [super layoutAttributesForItemAtIndexPath:indexPath];
+</span><span class='line'>    //列数是3，布局属性的宽度是固定的
+</span><span class='line'>    CGFloat collectionViewW = self.collectionView.frame.size.width;
+</span><span class='line'>    CGFloat width = (collectionViewW - self.edgeInsets.left - self.edgeInsets.right - (self.columnCount - 1) * self.columnMargin) / self.columnCount;
+</span><span class='line'>    CGFloat height = 通过数据源以及宽度信息，获取对应位置的布局属性高度;
+</span><span class='line'>    //找到数组内目前高度最小的那一列
+</span><span class='line'>    NSInteger destColumn = 0;
+</span><span class='line'>    CGFloat minColumnHeight = [self.columnHeights[0] doubleValue];
+</span><span class='line'>    for (NSInteger index = 1; index &lt; self.columnCount; index++) {
+</span><span class='line'>          CGFloat columnHeight = [self.columnHeights[index] doubleValue];
+</span><span class='line'>        if (minColumnHeight &gt; columnHeight) {
+</span><span class='line'>            minColumnHeight = columnHeight;
+</span><span class='line'>            destColumn = index;
+</span><span class='line'>            break;
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    //根据列信息，计算出origin的x
+</span><span class='line'>    CGFloat x = self.edgeInsets.left + destColumn * (width +self.columnMargin);
+</span><span class='line'>    CGFloat y = minColumnHeight;
+</span><span class='line'>    if (y != self.edgeInsets.top) {//不是第一行就加上行间距
+</span><span class='line'>        y += self.rowMargin;
+</span><span class='line'>    }
+</span><span class='line'>    //得到布局属性的frame信息
+</span><span class='line'>    attrs.frame = CGRectMake(x, y, width, height);
+</span><span class='line'>    //更新最短那列的高度
+</span><span class='line'>    self.columnHeights[destColumn] = @(CGRectGetMaxY(attrs.frame));
+</span><span class='line'>    //更新记录展示布局所需的高度
+</span><span class='line'>    CGFloat columnHeight = [self.columnHeights[destColumn] doubleValue];
+</span><span class='line'>    if (self.contentHeight &lt; columnHeight) {
+</span><span class='line'>        self.contentHeight = columnHeight;
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>    return attrs;
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>滑动的过程在，<strong>cell</strong>会不断重用，系统会调用<code>layoutAttributesForElementsInRect</code>方法来获取当前可见区域内的布局属性，由于所有的布局属性都缓存了起来，则只需返回布局属性的<strong>frame</strong>和当前可见区域有交集的布局属性就行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  -(NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+</span><span class='line'>    NSMutableArray *rArray = [NSMutableArray array];
+</span><span class='line'>    for (UICollectionViewLayoutAttributes *cacheAttr in _attrsArray) {
+</span><span class='line'>        if (CGRectIntersectsRect(cacheAttr.frame, rect)) {
+</span><span class='line'>            [rArray addObject:cacheAttr];
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    return rArray;
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>最后由于我们自定义了每个cell的高度及布局，所以系统是不知道<strong>UICollectionView</strong>当前的<strong>contentSize</strong>的大小，所以我们需要在<code>collectionViewContentSize</code>方法里返回正确的<strong>size</strong>以确保所以<strong>cell</strong>都能正常滑动到可见区域里来。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  -(CGSize)collectionViewContentSize {
+</span><span class='line'>    return CGSizeMake(CGRectGetWidth(self.collectionView.frame), self.contentHeight + self.edgeInsets.bottom);
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+至此，瀑布流的布局就完成了，实现起来非常简单，最关键的地方就是计算布局属性的<strong>frame</strong>信息。</p>
+
+<h5>5、示例二：卡片吸顶布局</h5>
+
+<p>卡片吸顶布局的效果如下：</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0jw1f662nnfgrag208m0bujvj.gif" alt="image" /></p>
+
+<p>可以看到滑到顶部的<strong>cell</strong>本应该移出当前可见区域，但我们实现的效果是移到顶部后就悬停，并且可以被后来的<strong>cell</strong>覆盖。</p>
+
+<p>实现的原理非常简单，<strong>cell</strong>的布局使用<strong>UICollectionViewFlowLayout</strong>就能实现，我们新建一个继承自<strong>UICollectionViewFlowLayout</strong>的子类，利用这个子类创建布局，可以利用<strong>UICollectionViewFlowLayout</strong>提供的参数来构建一个不吸顶展示的<strong>collectionView</strong>：</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0jw1f662nnrqqhg208m0bugp0.gif" alt="image" /></p>
+
+<p>只需要提供给<strong>UICollectionViewFlowLayout</strong><code>itemSize</code>和<code>minimumLineSpacing</code>就行，行间距<code>minimumLineSpacing</code>设置为一个负数就能建立起互相叠加的效果。</p>
+
+<p>要建立吸顶的效果，只需要在原来的布局基础上，判断布局属性<code>frame</code>小于布局顶部的<code>y</code>值，就将布局属性的<code>frame</code>的<strong>y</strong>值设置为顶部的<strong>y</strong>值就行，这样滑动到顶部的<strong>cell</strong>都会在顶部悬停下来。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  @implementation CardCollectionViewFlowLayout
+</span><span class='line'>
+</span><span class='line'>- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+</span><span class='line'>{
+</span><span class='line'>    //拿到当前可见区域内的布局属性
+</span><span class='line'>    NSArray *oldItems = [super layoutAttributesForElementsInRect:rect];
+</span><span class='line'>    //处理当前可见区域内的布局属性吸顶
+</span><span class='line'>    [oldItems enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes *attributes, NSUInteger idx, BOOL *stop) {
+</span><span class='line'>        [self recomputeCellAttributesFrame:attributes];
+</span><span class='line'>    }];
+</span><span class='line'>    
+</span><span class='line'>    return oldItems;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>- (void)recomputeCellAttributesFrame:(UICollectionViewLayoutAttributes *)attributes
+</span><span class='line'>{
+</span><span class='line'>    //获取悬停处的y值
+</span><span class='line'>    CGFloat minY = CGRectGetMinY(self.collectionView.bounds) + self.collectionView.contentInset.top;
+</span><span class='line'>    //拿到布局属性应该出现的位置
+</span><span class='line'>    CGFloat finalY = MAX(minY, attributes.frame.origin.y);
+</span><span class='line'>    
+</span><span class='line'>    CGPoint origin = attributes.frame.origin;
+</span><span class='line'>    origin.y = finalY;
+</span><span class='line'>    attributes.frame = (CGRect){origin, attributes.frame.size};
+</span><span class='line'>    //根据IndexPath设置zIndex能确立顶部悬停的cell被后来的cell覆盖的层级关系
+</span><span class='line'>    attributes.zIndex = attributes.indexPath.row;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+</span><span class='line'>{
+</span><span class='line'>    //由于cell在滑动过程中会不断修改cell的位置，所以需要不断重新计算所有布局属性的信息
+</span><span class='line'>    return YES;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>@end
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>在实现里面不需要<code>-(CGSize)collectionViewContentSize</code>方法的原因是，对于利用<code>UICollectionViewFlowLayout</code>来进行布局，而不是自定义的布局，系统会自动根据你设置的<code>itemSize</code>等信息计算出<code>contentSize</code>。</p>
+
+<h5>6、总结</h5>
+
+<p>通过上面的例子我们可以看到，<code>UICollectionView</code>相到于一个画板，而<code>UICollectionViewLayout</code>则可以帮我们组织画板的大小，以及画板内容的组织形态。在日常开发需求中，我们也需要重视<code>UICollectionView</code>，利用好它可以达到事半功倍的效果。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[如何检测iPhone设备处于低电量模式]]></title>
