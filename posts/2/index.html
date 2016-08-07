@@ -9,7 +9,7 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="目前由于Apple自己的Auto Layout写法比较啰嗦，所以出现了许多对原生语句进行封装的第三方开发库，这其中Masonry广受开发者的喜爱，所以以下都以Masonry来做演示说明，但对于Apple原生的写法也同样适用。 1、图片+文字居中显示 很多时候我们都会遇到这样的需求： &hellip;">
+  <meta name="description" content="在Auto Layout的使用中，有两个很重要的布局概念：Content Compression Resistance和Content Hugging，从字面的翻译我们大概可以分别翻译为：压缩阻力以及内容吸附。但是光从字面意思来理解很难知道它们如何使用以及确切的设计意图。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,45 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/">ContentCompressionResistance和ContentHugging详解</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-13T17:07:53+08:00'><span class='date'>2015 年12 月13 日</span> <span class='time'>5:07 pm</span></time>
+        
+           | <a href="/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在Auto Layout的使用中，有两个很重要的布局概念：<code>Content Compression Resistance</code>和<code>Content Hugging</code>，从字面的翻译我们大概可以分别翻译为：<code>压缩阻力</code>以及<code>内容吸附</code>。但是光从字面意思来理解很难知道它们如何使用以及确切的设计意图。我最开始也是很迷糊而且在使用Auto Layout的过程中也没有使用过它们，直到最近稍稍研究了一下，发现它们的作用甚是巨大，所以我为了加深记忆，把我最近学习到的关于它们的概念在此稍作整理加以记录。</p>
+
+<blockquote><p>注：以下为了表述方便，将<code>Content Compression Resistance</code>记为<code>压缩阻力</code>，将<code>Content Hugging</code>记为<code>内容吸附</code>。</p></blockquote>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/13/contentcompressionresistancehe-contenthuggingxiang-jie/">阅读全文 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -271,7 +310,11 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview/">布局万花筒：uicolletionview</a>
+        <a href="/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer/">动画黄金搭档:CADisplayLink&amp;CAShapeLayer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview/">布局万花筒：UIColletionview</a>
       </li>
     
       <li class="post">
@@ -284,10 +327,6 @@
     
       <li class="post">
         <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/28/swiftjiao-ben-bian-ji/">Swift脚本编辑</a>
       </li>
     
   </ul>

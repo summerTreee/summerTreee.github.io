@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2016-07-25T13:29:33+08:00</updated>
+  <updated>2016-08-07T17:40:19+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -14,11 +14,357 @@
 
   
   <entry>
-    <title type="html"><![CDATA[布局万花筒：uicolletionview]]></title>
+    <title type="html"><![CDATA[动画黄金搭档:CADisplayLink&amp;CAShapeLayer]]></title>
+    <link href="http://summertreee.github.io/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer/"/>
+    <updated>2016-08-07T17:36:13+08:00</updated>
+    <id>http://summertreee.github.io/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer</id>
+    <content type="html"><![CDATA[<p>我们在开发中有时会遇到一些看似非常复杂的动画，不知该如何下手，今天的这篇文章中我会讲到如何利用<code>CADisplayLink</code>和<code>CAShapeLayer</code>来构建一些复杂的动画，希望能在你下次构建动画中，给你一些启发。</p>
+
+<p>在接下来的文章中，我们会构建如下的一个动画：</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f6lb4ym7ovg207002z3ym.gif" alt="image" /></p>
+
+<p>该动画是在<code>du</code>的轮廓中进行，类似一个镂空效果，轮廓的填充是用双波浪的形式，类似于水流慢慢注入容器的过程。<br/>
+动画使用<code>CADisplayLink</code>来进行刷新，保证了动画的流程性，利用<code>CAShapeLayer</code>来构建波浪的轮廓，最后利用<code>CALayer</code>的<code>mask</code>属性来实现逐渐填充的过程。</p>
+
+<!--more-->
+
+
+<h4>背景知识介绍</h4>
+
+<p>在动画创建过程的讲解之前，先介绍一下会使用到的一些知识点：</p>
+
+<ol>
+<li>CADisplayLink</li>
+<li>UIBezierPath</li>
+<li>CAShapeLayer</li>
+<li>mask</li>
+</ol>
+
+
+<p>如果你已经对这些概念有了充分的了解，可以略过<code>背景知识介绍</code>这一节。</p>
+
+<h6>1、CADisplayLink</h6>
+
+<p>用绘制的方式构建的动画，必然需要不断的刷新绘制的内容来呈现流畅的动画，<code>CADisplayLink</code>就像是一个定时器，每隔几毫秒刷新一次屏幕。能让我们以和屏幕刷新频率相同的频率去刷新我们绘制到屏幕上的内容。<br/>
+<code>CADisplayLink</code>的使用方式如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  _displayLink = [CADisplayLink displayLinkWithTarget:self
+</span><span class='line'>                                            selector:@selector(updateContent:)];
+</span><span class='line'>   [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+</span><span class='line'>                      forMode:NSRunLoopCommonModes];
+</span><span class='line'>  
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>当<code>CADisplayLink</code>注册到<strong>runloop</strong>以后，屏幕刷新的时候就会调用绑定到它上面的<strong>target</strong>所拥有的<strong>selector</strong>方法。停止<code>CADisplayLink</code>的运行非常的简单，只需要调用它的<code>invalidate</code>方法。</p>
+
+<p><strong>NSTimer和CADisplayLink有什么不同？</strong></p>
+
+<p>iOS设备的屏幕每秒会刷新60次，正常情况下<code>CADisplayLink</code>在屏幕每次刷新时都会调用，精确度非常高，并且<code>CADisplayLink</code>的使用场合相对专一，适合做UI的不停重绘，比如动画的连续绘制。</p>
+
+<p><code>NSTimer</code>的使用范围要广泛很多，可以做单次或者循环处理某个任务，精度相比<strong>CADisplayLink</strong>要低。</p>
+
+<h5>2、UIBezierPath</h5>
+
+<p>使用<code>UIBezierPath</code>类可以创建基于矢量的路径，它是<strong>Core Graphics</strong>框架关于<code>CGPathRef</code>类型数据的封装，利用它创建直线或者曲线来构建我们想要的形状，每一个直线段或者曲线段的结束位置就是下一个线段开始的地方。这些连接的直线或者曲线的集合成为<strong>subpath</strong>。一个<code>UIBezierPath</code>对象的完整路径包括一个或者多个<strong>subpath</strong>。</p>
+
+<p>创建一个完整的<strong>UIBezierPath</strong>对象的完整步骤如下：</p>
+
+<ul>
+<li>创建一个Bezier Path对象。</li>
+<li>使用方法<strong>moveToPoint:</strong>去设置初始线段的起点。</li>
+<li>添加<strong>line</strong>或者<strong>curve</strong>去定义一个或者多个<strong>subpath</strong>。</li>
+<li>修改<strong>UIBezierPath</strong>对象跟绘图相关的属性。</li>
+</ul>
+
+
+<h5>3、CAShapeLayer</h5>
+
+<p><code>CAShapeLayer</code>是一个通过矢量图形而不是<strong>bitmap</strong>来绘制的图层子类。<code>CAShapeLayer</code>可以用来绘制所有通过<strong>CGPath</strong>来表示的形状，上面讲到了可以用<code>UIBezierPath</code>来创建任何你想要的路径，使用<code>CAShapeLayer</code>的属性<code>path</code>配合<code>UIBezierPath</code>创建的路径，就可以呈现出我们想要的形状。<br/>
+这个形状不一定要闭合，图层路径也不一定是连续不断的，你可以在<code>CAShapeLayer</code>的图层上绘制好几个不同的形状，但是你只有一次机会去设置它的<code>path、lineWith、lineCap</code>等属性，如果你想同时设置几个不同颜色的多个形状，你就需要为每个形状准备一个图层。</p>
+
+<p>下面的示例代码是通过<code>UIBezierPath</code>和<code>CAShapeLayer</code>来创建一个简单的火柴人。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  - (void)viewDidLoad {
+</span><span class='line'>    [super viewDidLoad];
+</span><span class='line'>    
+</span><span class='line'>    UIBezierPath *path = [[UIBezierPath alloc] init];
+</span><span class='line'>    [path moveToPoint:CGPointMake(175, 100)];
+</span><span class='line'>    
+</span><span class='line'>    [path addArcWithCenter:CGPointMake(150, 100) radius:25 startAngle:0 endAngle:2*M_PI clockwise:YES];
+</span><span class='line'>    [path moveToPoint:CGPointMake(150, 125)];
+</span><span class='line'>    [path addLineToPoint:CGPointMake(150, 175)];
+</span><span class='line'>    [path addLineToPoint:CGPointMake(125, 225)];
+</span><span class='line'>    [path moveToPoint:CGPointMake(150, 175)];
+</span><span class='line'>    [path addLineToPoint:CGPointMake(175, 225)];
+</span><span class='line'>    [path moveToPoint:CGPointMake(100, 150)];
+</span><span class='line'>    [path addLineToPoint:CGPointMake(200, 150)];
+</span><span class='line'>    
+</span><span class='line'>    //create shape layer
+</span><span class='line'>    CAShapeLayer *shapeLayer = [CAShapeLayer layer];
+</span><span class='line'>    shapeLayer.strokeColor = [UIColor colorWithRed:147/255.0 green:231/255.0 blue:182/255.0 alpha:1].CGColor;
+</span><span class='line'>    shapeLayer.fillColor = [UIColor clearColor].CGColor;
+</span><span class='line'>    shapeLayer.lineWidth = 5;
+</span><span class='line'>    shapeLayer.lineJoin = kCALineJoinRound;
+</span><span class='line'>    shapeLayer.lineCap = kCALineCapRound;
+</span><span class='line'>    shapeLayer.path = path.CGPath;
+</span><span class='line'>    //add it to our view
+</span><span class='line'>    [self.view.layer addSublayer:shapeLayer];
+</span><span class='line'>}  
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+显示的形状如下：</p>
+
+<p><img src="http://ww1.sinaimg.cn/mw690/8f7a6fe0gw1f6lb4z3e4oj209y0aqglo.jpg" alt="image" /></p>
+
+<h5>4、mask</h5>
+
+<p><code>CALayer</code>有一个属性叫做<code>mask</code>，通常被称为蒙版图层，这个属性本身也是<strong>CALayer</strong>类型，有和其他图层一样的绘制和布局属性。它类似于一个子视图，相对于父图层（即拥有该属性的图层）布局，但是它却不是一个普通的子视图。不同于一般的<strong>subLayer</strong>，<code>mask</code>定义了父图层的可见区域，简单点说就是最终父视图显示的形态是父视图自身和它的属性<code>mask</code>的交集部分。</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f6lb50rgqbj20go06mwet.jpg" alt="image" /></p>
+
+<p><code>mask</code>图层的<strong>color</strong>属性是无关紧要的，真正重要的是它的轮廓，<code>mask</code>属性就像一个切割机，父视图被<code>mask</code>切割，相交的部分会留下，其他的部分则被丢弃。<br/>
+<strong>CALayer</strong>的蒙版图层真正厉害的地方在于蒙版图层不局限于静态图，任何有图层构成的都可以作为<code>mask</code>属性，这意味着蒙版可以通过代码甚至是动画实时生成。这也为我们实现示例中波浪的变化提供了支持。</p>
+
+<h4>绘制波浪轮廓</h4>
+
+<p>我们利用<code>UIBezierPath</code>来绘制波浪的轮廓，通过正弦函数和余弦函数来创建顶部的波浪曲线，在单位为1的右手直角坐标系中的曲线变化如下：</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/8f7a6fe0gw1f6lb51vscuj20v007sq4f.jpg" alt="image" /></p>
+
+<p>可以看到在<strong>(-2π , 2π )</strong>的范围类，<code>y</code>值在<code>[-1, 1]</code>之间变化。<br/>
+以正弦曲线为例，它可以表示为<code>y=Asin(ωx+φ)+k</code>，公式中各符号表示的含义：</p>
+
+<ul>
+<li><strong>A</strong>&ndash;振幅，即波峰的高度。</li>
+<li><strong>(ωx+φ)</strong>&ndash;相位，反应了变量<em>y</em>所处的位置。</li>
+<li><strong>φ</strong>&ndash;初相，<em>x=0</em>时的相位，反映在坐标系上则为图像的左右移动。</li>
+<li><strong>k</strong>&ndash;偏距，反映在坐标系上则为图像的上移或下移。</li>
+<li><strong>ω</strong>&ndash;角速度，控制正弦周期(单位角度内震动的次数)。</li>
+</ul>
+
+
+<p>通过上面的函数，我们就能计算出波浪曲线上任意位置的坐标点。通过<code>UIBezierPath</code>的函数<code>addLineToPoint</code>来把这些点连接起来，就构建了波浪形状的<strong>path</strong>。只要我们的设定相邻两点的间距够小，就能构建出平滑的正弦曲线，构建正弦波浪的代码如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  - (UIBezierPath *)createSinPath
+</span><span class='line'>{
+</span><span class='line'>    UIBezierPath *wavePath = [UIBezierPath bezierPath];
+</span><span class='line'>    CGFloat endX = 0;
+</span><span class='line'>    for (CGFloat x = 0; x &lt; self.waveWidth + 1; x += 1) {
+</span><span class='line'>        endX=x;
+</span><span class='line'>        CGFloat y = self.maxAmplitude * sinf(360.0 / _waveWidth * (x  * M_PI / 180) * self.frequency + self.phase * M_PI/ 180) + self.maxAmplitude;
+</span><span class='line'>        if (x == 0) {
+</span><span class='line'>            [wavePath moveToPoint:CGPointMake(x, y)];
+</span><span class='line'>        } else {
+</span><span class='line'>            [wavePath addLineToPoint:CGPointMake(x, y)];
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>    CGFloat endY = CGRectGetHeight(self.bounds) + 10;
+</span><span class='line'>    [wavePath addLineToPoint:CGPointMake(endX, endY)];
+</span><span class='line'>    [wavePath addLineToPoint:CGPointMake(0, endY)];
+</span><span class='line'>    
+</span><span class='line'>    return wavePath;
+</span><span class='line'>}
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>显示的效果如下：</p>
+
+<p><img src="http://ww1.sinaimg.cn/mw690/8f7a6fe0gw1f6lb53gapqj20jg06ejrc.jpg" alt="image" /></p>
+
+<p>在这里我们设定了两个正弦曲线上的点的横坐标间距是<strong>1</strong>，现在来解释一下通过横坐标<strong>x</strong>来得出<strong>y</strong>的计算过程：</p>
+
+<pre><code>y = self.maxAmplitude * sinf(360.0 / _waveWidth * (x  * M_PI / 180) * self.frequency + self.phase * M_PI/ 180) + self.maxAmplitude;  
+</code></pre>
+
+<p>第一个<code>self.maxAmplitude</code>表示曲线的波峰值，<code>360.0 / _waveWidth</code>计算出单位间距<strong>1pixel</strong>代表的度数，<code>x  * M_PI / 180</code>表示将横坐标值转换为角度。<code>self.frequency</code>表示角速度，即单位面积内波动次数，波浪的大小。<code>self.phase * M_PI/ 180</code>代表上面公式中的初相，通过规律的变化初相，可以制造出曲线上的点动起来的效果，<code>self.maxAmplitude</code>代表偏距，由于我们需要让波浪曲线的波峰在<code>layer</code>的范围内显示，所以需要将整个曲线向下移动波峰大小的单位，因为<code>CALayer</code>使用左手坐标系，所以向下移动需要加上波峰的大小。</p>
+
+<h4>让波浪曲线动起来</h4>
+
+<p>正弦或者余弦曲线上的点，不论角度如何，在<strong>y</strong>轴上的变化范围在它的波峰与波谷之间。拿单位正交直角坐标系来说，只要我们规律性的增加角度值，那么曲线上的点就会在<strong>[1, -1]</strong>之间变化，我们以曲线上<strong>x=0</strong>的点为例，角度的不断增加，会让它的<strong>y</strong>值规律性的来回变化：</p>
+
+<p><img src="http://ww3.sinaimg.cn/mw690/8f7a6fe0gw1f6lb548i4ig205304idft.gif" alt="image" /></p>
+
+<p>如若曲线上的点都能这样规律的变化，我们就能让波浪曲线浪起来。<br/>
+要让曲线上所有的点都动起来，在这里我们使用<code>CADisplayLink</code>来不断刷新由<code>UIBezierPath</code>创建的形状，两次刷新之间曲线的变化通过增加初相来实现，代码如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)startLoading
+</span><span class='line'>{
+</span><span class='line'>    [_displayLink invalidate];
+</span><span class='line'>    self.displayLink = [CADisplayLink displayLinkWithTarget:self
+</span><span class='line'>                                                   selector:@selector(updateWave:)];
+</span><span class='line'>    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+</span><span class='line'>                       forMode:NSRunLoopCommonModes];
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>- (void)updateWave:(CADisplayLink *)displayLink
+</span><span class='line'>{
+</span><span class='line'>    self.phase += 8;//逐渐累加初相
+</span><span class='line'>    self.waveSinLayer.path = [self createSinPath].CGPath;
+</span><span class='line'>}
+</span><span class='line'>  
+</span><span class='line'>- (UIBezierPath *)createSinPath
+</span><span class='line'>{
+</span><span class='line'>    UIBezierPath *wavePath = [UIBezierPath bezierPath];
+</span><span class='line'>    CGFloat endX = 0;
+</span><span class='line'>    for (CGFloat x = 0; x &lt; self.waveWidth + 1; x += 1) {
+</span><span class='line'>        endX=x;
+</span><span class='line'>        CGFloat y = self.maxAmplitude * sinf(360.0 / _waveWidth * (x  * M_PI / 180) * self.frequency + self.phase * M_PI/ 180) + self.maxAmplitude;
+</span><span class='line'>        if (x == 0) {
+</span><span class='line'>            [wavePath moveToPoint:CGPointMake(x, y)];
+</span><span class='line'>        } else {
+</span><span class='line'>            [wavePath addLineToPoint:CGPointMake(x, y)];
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    
+</span><span class='line'>    CGFloat endY = CGRectGetHeight(self.bounds) + 10;
+</span><span class='line'>    [wavePath addLineToPoint:CGPointMake(endX, endY)];
+</span><span class='line'>    [wavePath addLineToPoint:CGPointMake(0, endY)];
+</span><span class='line'>    
+</span><span class='line'>    return wavePath;
+</span><span class='line'>} 
+</span><span class='line'>  
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>把<code>CAShapeLayer</code>的背景色设置为淡红色，波浪曲线会在<code>Layer</code>的<strong>bounds</strong>类波动，动起来的波浪曲线如下：</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f6lb55j45eg208r021dg0.gif" alt="image" /></p>
+
+<h4>构建波浪上升的镂空效果</h4>
+
+<p>到目前为止，我们利用<code>CAShapeLayer</code>、<code>UIBezierPath</code>以及<code>CADisplayLink</code>实现了动起来的波浪效果，下面我们需要实现的是在<code>du</code>的轮廓里，水波不断上升填充的过程，整个动画过程中，会呈现一个<code>du</code>的镂空效果，在它轮廓之外的水波则不会显示，这样的效果需要借助<code>CALayer</code>的<code>mask</code>属性来实现。</p>
+
+<p>我们需要的动画素材如下：</p>
+
+<p><img src="http://ww1.sinaimg.cn/mw690/8f7a6fe0gw1f6lb55xrpgj20bm04iaa5.jpg" alt="image" /></p>
+
+<p>将这三个图片位置设置为一样，底层放置动画中一直显示的底层轮廓，中间层用以实现余弦波浪，最外层用于实现正弦波浪，将中间层和最外层图片的<code>mask</code>属性赋值为我们创建的用来呈现余弦波浪和正弦波浪的<code>CAShapeLayer</code>，这样动画开始后，利用<code>CADisplayLink</code>来不断刷新两个<code>CAShapeLayer</code>的<strong>path</strong>来让波浪浪起来，再利用<code>CABasicAnimation</code>来对两个<code>CAShapeLayer</code>的<code>position</code>进行动画，实现从下到上的填充效果。我们想要的效果就完成了：</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/8f7a6fe0gw1f6lb4ym7ovg207002z3ym.gif" alt="image" /></p>
+
+<p>完整的代码示例在<a href="https://github.com/liangwei518/WaterWave">这里</a></p>
+
+<h4>参考</h4>
+
+<ul>
+<li><a href="http://blog.csdn.net/crayondeng/article/details/11093689">UIBezierPath</a></li>
+<li><a href="http://www.cnblogs.com/YouXianMing/p/3678709.html">CAShapeLayer</a></li>
+<li><a href="https://zsisme.gitbooks.io/ios-/content/chapter4/layer-masking.html">图层蒙版</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[布局万花筒：UIColletionview]]></title>
     <link href="http://summertreee.github.io/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview/"/>
     <updated>2016-07-25T13:28:11+08:00</updated>
     <id>http://summertreee.github.io/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview</id>
     <content type="html"><![CDATA[<p><strong>UICollectionView</strong>是iOS6的时候引入的，它同<strong>UITableView</strong>共享一套API设计，都是基于<strong>datasource和delegate</strong>，都继承自<strong>UIScrollView</strong>。但它又与<strong>UITableView</strong>有很大不同，它进行了进一步的抽象，将它的所有子视图的位置、大小、transform委托给了一个单独的布局对象：<code>UICollectionViewLayout</code>。这是一个抽象类，我们可以继承它来实现任何想要的布局，系统也为我们提供了一个开箱即食的实现<code>UICollectionViewFlowLayout</code>。在我看来，没有任何排列布局是<code>UICollectionViewLayout</code>不能实现的，如果有那就自定义一个。</p>
+
+<!--more-->
+
 
 <p><strong>UITableView</strong>只能提供竖直滑动的布局，而且默认情况下<strong>cell</strong>的宽度和tableView的宽度一致，而且<strong>cell</strong>的排列顺序也是挨次排列。<strong>UICollectionView</strong>则为我们提供了另一种可能：它能提供竖直滑动的布局也能提供水平滑动的布局，而且<strong>cell</strong>的位置、大小等完全由你自己决定。所以我们在遇到水平滑动的布局时，不要忙着用<strong>UIScrollView</strong>去实现，可以先考虑<strong>UICollectionView</strong>能不能满足要求，还有一个好处是你不要自己考虑滑动视图(cell)重用的问题。</p>
 

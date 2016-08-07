@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>布局万花筒：uicolletionview - 夏树正茂</title>
+  <title>布局万花筒：UIColletionview - 夏树正茂</title>
   <meta name="author" content="梁炜V">
 
   
@@ -68,7 +68,7 @@
   
   <header>
     
-      <h1 class="entry-title">布局万花筒：uicolletionview</h1>
+      <h1 class="entry-title">布局万花筒：UIColletionview</h1>
     
     
       <p class="meta">
@@ -88,6 +88,9 @@
 
 
 <div class="entry-content"><p><strong>UICollectionView</strong>是iOS6的时候引入的，它同<strong>UITableView</strong>共享一套API设计，都是基于<strong>datasource和delegate</strong>，都继承自<strong>UIScrollView</strong>。但它又与<strong>UITableView</strong>有很大不同，它进行了进一步的抽象，将它的所有子视图的位置、大小、transform委托给了一个单独的布局对象：<code>UICollectionViewLayout</code>。这是一个抽象类，我们可以继承它来实现任何想要的布局，系统也为我们提供了一个开箱即食的实现<code>UICollectionViewFlowLayout</code>。在我看来，没有任何排列布局是<code>UICollectionViewLayout</code>不能实现的，如果有那就自定义一个。</p>
+
+<!--more-->
+
 
 <p><strong>UITableView</strong>只能提供竖直滑动的布局，而且默认情况下<strong>cell</strong>的宽度和tableView的宽度一致，而且<strong>cell</strong>的排列顺序也是挨次排列。<strong>UICollectionView</strong>则为我们提供了另一种可能：它能提供竖直滑动的布局也能提供水平滑动的布局，而且<strong>cell</strong>的位置、大小等完全由你自己决定。所以我们在遇到水平滑动的布局时，不要忙着用<strong>UIScrollView</strong>去实现，可以先考虑<strong>UICollectionView</strong>能不能满足要求，还有一个好处是你不要自己考虑滑动视图(cell)重用的问题。</p>
 
@@ -540,6 +543,8 @@
         <a class="basic-alignment left" href="/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/" title="Previous Post: 如何检测iPhone设备处于低电量模式">&laquo; 如何检测iPhone设备处于低电量模式</a>
       
       
+        <a class="basic-alignment right" href="/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer/" title="Next Post: 动画黄金搭档:CADisplayLink&amp;CAShapeLayer">动画黄金搭档:CADisplayLink&amp;CAShapeLayer &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -559,7 +564,11 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview/">布局万花筒：uicolletionview</a>
+        <a href="/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer/">动画黄金搭档:CADisplayLink&amp;CAShapeLayer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview/">布局万花筒：UIColletionview</a>
       </li>
     
       <li class="post">
@@ -572,10 +581,6 @@
     
       <li class="post">
         <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/28/swiftjiao-ben-bian-ji/">Swift脚本编辑</a>
       </li>
     
   </ul>
