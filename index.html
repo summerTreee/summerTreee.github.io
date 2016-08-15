@@ -9,7 +9,7 @@
   <meta name="author" content="梁炜V">
 
   
-  <meta name="description" content="我们在开发中有时会遇到一些看似非常复杂的动画，不知该如何下手，今天的这篇文章中我会讲到如何利用CADisplayLink和CAShapeLayer来构建一些复杂的动画，希望能在你下次构建动画中，给你一些启发。 在接下来的文章中，我们会构建如下的一个动画： 该动画是在du的轮廓中进行， &hellip;">
+  <meta name="description" content="nullable和__kindof的使用记录 2015年的WWDC里面介绍了几个新的关键字：__kindof和nullable。如果能很好的使用它们，编译器在我们犯错误的时候就能给予我们提示，将bug扼杀在摇篮里。 ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,45 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/08/15/nullablehe-kindof/">Nullable和__kindof的使用</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-08-15T10:59:30+08:00'><span class='date'>2016 年8 月15 日</span> <span class='time'>10:59 am</span></time>
+        
+           | <a href="/blog/2016/08/15/nullablehe-kindof/#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io/blog/2016/08/15/nullablehe-kindof/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>nullable和__kindof的使用记录</h3>
+
+<p>2015年的WWDC里面介绍了几个新的关键字：<code>__kindof</code>和<code>nullable</code>。如果能很好的使用它们，编译器在我们犯错误的时候就能给予我们提示，将bug扼杀在摇篮里。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2016/08/15/nullablehe-kindof/">阅读全文 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -447,47 +486,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/12/28/classes-and-metaclasses/">Classes and Metaclasses</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-12-28T13:53:36+08:00'><span class='date'>2015 年12 月28 日</span> <span class='time'>1:53 pm</span></time>
-        
-           | <a href="/blog/2015/12/28/classes-and-metaclasses/#disqus_thread"
-             data-disqus-identifier="http://summertreee.github.io/blog/2015/12/28/classes-and-metaclasses/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这是一篇译文，原文<a href="http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html">在这里</a>，水平有限，翻译难免有错误的地方。</p>
-
-<p><code>Objective-C</code>是一个基于类别对象的系统。每一个对象都是某个类的实例，对象的<code>isa</code>指向它自己的类(Class),这个类描述了该对象所有的数据信息：开辟的空间大小，成员变量类型以及其他信息的排列，这个类同样也描述了该对象可以执行的一些行为：可以响应哪些<code>selector</code>以及它自己实例方法的实现。</p>
-
-<p>类的方法列表里面其实就是该类的所有实例方法的集合，通俗的讲就是该对象可以响应的所有<code>selectors</code>。当你向一个类发送消息时，会通过<code>objc_msgSend()</code>去查找它自身的类的方法列表(如果它有父类的话，也会在它的父类方法列表中去查找)来决定调用哪一个方法。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/12/28/classes-and-metaclasses/">阅读全文 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -503,6 +501,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/15/nullablehe-kindof/">Nullable和__kindof的使用</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer/">动画黄金搭档:CADisplayLink&amp;CAShapeLayer</a>
       </li>
     
@@ -516,10 +518,6 @@
     
       <li class="post">
         <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/ding-zhi-zi-ji-de-dan-yuan-ce-shi/">定制自己的单元测试</a>
       </li>
     
   </ul>

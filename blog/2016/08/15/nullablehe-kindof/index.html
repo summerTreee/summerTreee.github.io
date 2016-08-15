@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Nullable和__kindof的使用 - 夏树正茂</title>
+  <meta name="author" content="梁炜V">
+
+  
+  <meta name="description" content="nullable和__kindof的使用记录 2015年的WWDC里面介绍了几个新的关键字：__kindof和nullable。如果能很好的使用它们，编译器在我们犯错误的时候就能给予我们提示，将bug扼杀在摇篮里。 __kindof __kindof关键字的使用很简单，直接上一个示例代码就能说明白 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://summertreee.github.io/blog/2016/08/15/nullablehe-kindof/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="夏树正茂" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">夏树正茂</a></h1>
+  
+    <h2>花有重开日，人无再少年.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="订阅 RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="summertreee.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="搜索"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Nullable和__kindof的使用</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-08-15T10:59:30+08:00'><span class='date'>2016 年8 月15 日</span> <span class='time'>10:59 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://summertreee.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3>nullable和__kindof的使用记录</h3>
+
+<p>2015年的WWDC里面介绍了几个新的关键字：<code>__kindof</code>和<code>nullable</code>。如果能很好的使用它们，编译器在我们犯错误的时候就能给予我们提示，将bug扼杀在摇篮里。</p>
+
+<!--more-->
+
+
+<h5>__kindof</h5>
+
+<p><code>__kindof</code>关键字的使用很简单，直接上一个示例代码就能说明白：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NSMutableArray&lt;UIView *&gt; *subviews = [[NSMutableArray alloc] init];
+</span><span class='line'>
+</span><span class='line'>[subviews addObject:[[UIView alloc] init]]; // Works
+</span><span class='line'>[subviews addObject:[[UIImageView alloc] init]]; // Also works
+</span><span class='line'>
+</span><span class='line'>UIView *sameView = subviews[0]; // Works
+</span><span class='line'>UIImageView *sameImageView = subviews[1]; // Incompatible pointer types initializing 'UIImageView *' with an expression of type 'UIView *'
+</span><span class='line'>
+</span><span class='line'>NSLog(@"%@", NSStringFromClass([sameView class])); // UIView
+</span><span class='line'>NSLog(@"%@", NSStringFromClass([sameImageView class])); // UIImageView
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>上面的代码在编译的时候会给出警告，运行的时候不会crash，下面是使用<code>__kindof</code>的示例：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NSMutableArray&lt;__kindof UIView *&gt; *subviews = [[NSMutableArray alloc] init];
+</span><span class='line'>
+</span><span class='line'>[subviews addObject:[[UIView alloc] init]]; // Works
+</span><span class='line'>[subviews addObject:[[UIImageView alloc] init]]; // Also works
+</span><span class='line'>
+</span><span class='line'>UIView *sameView = subviews[0]; // No problem
+</span><span class='line'>UIImageView *sameImageView = subviews[1]; // No complaints now!
+</span><span class='line'>
+</span><span class='line'>NSLog(@"%@", NSStringFromClass([sameView class])); // UIView
+</span><span class='line'>NSLog(@"%@", NSStringFromClass([sameImageView class])); // UIImageView
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>可以看到在使用了<code>__kindof</code>关键字后，不在有编译警告了，所以对于<code>Objective-C</code>新提供的这个关键字来说，它可以限定返回值或者参数以及像我们例子中的这种泛型的类型，要么是这种类型本身的类型，要么是它的subClass，反之就会给出警告。</p>
+
+<h5>nullable、_Nullable、__nullable</h5>
+
+<p>这些关键字可以限定参数或者返回值可以空。它们的作用相同，但是也有细微的使用差别。</p>
+
+<ol>
+<li><strong>_Nullable</strong>是<strong>Xcode7</strong>以后用来替代<strong>__nullable</strong>的，所以能使用<strong>__nullable</strong>的地方就可以使用<strong>_Nullable</strong>。</li>
+<li><strong>nullable</strong>放在类型之前，<strong>_Nullable</strong>放在类型之后。</li>
+</ol>
+
+
+<p>以下的示例都是正确并且作用都是等价的：</p>
+
+<p>1、修饰返回值：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (nullable NSNumber *)result
+</span><span class='line'>- (NSNumber * __nullable)result
+</span><span class='line'>- (NSNumber * _Nullable)result
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>2、修饰参数：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)doSomethingWithString:(nullable NSString *)str
+</span><span class='line'>- (void)doSomethingWithString:(NSString * _Nullable)str
+</span><span class='line'>- (void)doSomethingWithString:(NSString * __nullable)str
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>3、修饰property：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@property(nullable) NSNumber *status
+</span><span class='line'>@property NSNumber *__nullable status
+</span><span class='line'>@property NSNumber * _Nullable status
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>4、修饰指针的指针，不能使用<em>nullable</em>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)compute:(NSError *  _Nullable * _Nullable)error
+</span><span class='line'>- (void)compute:(NSError *  __nullable * _Null_unspecified)error
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>5、修饰block：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)executeWithCompletion:(nullable void (^)())handler
+</span><span class='line'>- (void)executeWithCompletion:(void (^ _Nullable)())handler
+</span><span class='line'>- (void)executeWithCompletion:(void (^ __nullable)())handler
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<p>6、结论：<br/>
+<code>__nullable、_Nullable、nullable</code>以及与它们对应的<code>__nonnull、_Nonnull、nonnull</code>一样，只需要注意它们相对于修饰类型的位置。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">梁炜V</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-08-15T10:59:30+08:00'><span class='date'>2016 年8 月15 日</span> <span class='time'>10:59 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://summertreee.github.io/blog/2016/08/15/nullablehe-kindof/" data-via="" data-counturl="http://summertreee.github.io/blog/2016/08/15/nullablehe-kindof/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer/" title="Previous Post: 动画黄金搭档:CADisplayLink&amp;CAShapeLayer">&laquo; 动画黄金搭档:CADisplayLink&amp;CAShapeLayer</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>最新文章</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/08/15/nullablehe-kindof/">Nullable和__kindof的使用</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/08/07/dong-hua-huang-jin-da-dang-cadisplaylink-and-cashapelayer/">动画黄金搭档:CADisplayLink&amp;CAShapeLayer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/25/bu-ju-mo-hua-tong-:uicolletionview/">布局万花筒：UIColletionview</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/12/ru-he-jian-ce-iphoneshe-bei-chu-yu-di-dian-liang-mo-shi/">如何检测iPhone设备处于低电量模式</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/22/wo-suo-li-jie-de-runtime/">我所理解的Runtime</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - 梁炜V -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'summertreee';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://summertreee.github.io/blog/2016/08/15/nullablehe-kindof/';
+        var disqus_url = 'http://summertreee.github.io/blog/2016/08/15/nullablehe-kindof/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
