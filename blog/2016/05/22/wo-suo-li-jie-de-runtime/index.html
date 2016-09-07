@@ -192,7 +192,7 @@
 <p></p>
 
 <p>这时就需要使用<code>动态绑定</code>了，因为实际调用的方法在运行期根据<strong>type</strong>的值才能确定，在<strong>代码一</strong>中，<strong>if</strong>和<strong>else</strong>里面都有函数调用指令，而在<code>代码二</code>中，只有一个函数调用指令，而且待调用的函数地址无法硬编码到指令中，而是需要在运行期间读取出来。<br/>
-在底层，所以的方法都是普通的<code>C语言</code>函数，当对象接收到消息之后，究竟该调用哪个方法完全是运行期决定的，甚至可以在运行期改变以及交换某些函数的实现，这就是<code>runtime</code>所体现出来的异于其他编程语言的特点。<br/>
+在底层，所有的方法都是普通的<code>C语言</code>函数，当对象接收到消息之后，究竟该调用哪个方法完全是运行期决定的，甚至可以在运行期改变以及交换某些函数的实现，这就是<code>runtime</code>所体现出来的异于其他编程语言的特点。<br/>
 当给某个对象传递一个消息：</p>
 
 <pre><code>id returnValue = [someObject messageName:parameter];  
@@ -406,7 +406,7 @@ struct objc_method {
 <span class='line-number'>8</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>  Class class1 = [NSObject class];//0x90620c ①
 </span><span class='line'>  id obj1 = [NSObject valueForKey:@"isa"];//0x906220 ②
-</span><span class='line'>  id obj2 = [obj1 valueForKey:@"isa"];//0x90620  ③
+</span><span class='line'>  id obj2 = [obj1 valueForKey:@"isa"];//0x906220  ③
 </span><span class='line'>  NSObject *object = [NSObject new];
 </span><span class='line'>  Class class2 = objc_getMetaClass("NSObject");//0x906220 ④
 </span><span class='line'>  Class class3 = object_getClass(object);//0x90620c ⑤
