@@ -4,7 +4,7 @@
   <title><![CDATA[夏树正茂]]></title>
   <link href="http://summertreee.github.io/atom.xml" rel="self"/>
   <link href="http://summertreee.github.io/"/>
-  <updated>2016-09-07T19:58:21+08:00</updated>
+  <updated>2017-01-22T22:38:28+08:00</updated>
   <id>http://summertreee.github.io/</id>
   <author>
     <name><![CDATA[梁炜V]]></name>
@@ -12,6 +12,80 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Objective-C库文件使用小记]]></title>
+    <link href="http://summertreee.github.io/blog/2017/01/22/objective-cku-wen-jian-shi-yong-xiao-ji/"/>
+    <updated>2017-01-22T22:36:42+08:00</updated>
+    <id>http://summertreee.github.io/blog/2017/01/22/objective-cku-wen-jian-shi-yong-xiao-ji</id>
+    <content type="html"><![CDATA[<h5>静态库 VS 动态库</h5>
+
+<ul>
+<li>静态库：静态库在Objective-C里面以<code>.a</code>或者<code>.framework</code>作为后缀，目前开发者自己创建的库文件（Framework）其实都是以静态库的形式链接到执行文件的。链接时完整的拷贝到了可执行文件中，被多次使用就会有多份拷贝(eg：iOS8+的Extention中使用)。静态库文件一般都会比较大，因为所有要使用的数据都会被编译进去，而且如果库文件的某个函数改变了，那么就又需要重新编译新的库文件了，优点就是编译后的执行程序不需要外部的函数库支持，因为所有的函数都已经被编译进去了。</li>
+<li>动态库：动态库在Objective-C里面以<code>dylib</code>或者<code>.framework</code>最为后缀，系统为我们提供的framework就是动态库，目前开发者是不允许使用动态库的，因为我们自己创建的库文件虽然<code>buildSetting</code>中的<code>Mach-O Type</code>设置为<code>Dynamic Library</code>，但是使用时直接链接到程序里面的，而不是放在服务器上进行更新，开发者如果使用动态库放在服务器上，然后动态的加载<code>dlopen</code>是不会通过审核的，不然Apple的审核就没有意义了。动态库在链接时不复制，程序运行时由系统动态加载到内存，系统只加载一次，多个程序间共用，节省内存，而且升级方便。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>我们创建framework库文件时，系统默认是动态库的格式，如果想做成静态库，需要在<code>buildSetting</code>中将<code>Mach-O Type</code>选项设置为<code>Static Library</code>就行了！</p>
+
+<p><img src="http://wx4.sinaimg.cn/mw690/8f7a6fe0gy1fbzs4ohq7gj20he048t94.jpg" alt="image1" /></p>
+
+<h5>framework VS .a</h5>
+
+<ul>
+<li>.a：.a是纯二进制文件，不能直接拿来使用，需要配合头文件、资源文件一起使用。代码资源、图片、json资源、xib文件等是无法打包进去的，所以使用<code>.a</code>静态库的时候需要三个组成部分：.a文件+开放的头文件+资源文件。</li>
+<li>.framework：相当于一个文件夹，可以直接拿来使用，所需要的资源、头文件、源文件都在里面。</li>
+</ul>
+
+
+<p><img src="http://wx3.sinaimg.cn/mw690/8f7a6fe0gy1fbzs4nzfa3j20go03o74v.jpg" alt="image2" /></p>
+
+<h5>Static Library/Framework VS Embedded Framework</h5>
+
+<p><code>Embedded Framework</code>是<strong>iOS8</strong>引入的为了方便<code>Extention</code>和宿主APP公用一份代码库而引入的，<code>Embedded Framework</code>必须是<code>Dynamic framework</code>(在buildSeting中设置为Dynamic)。如果你想限制在<code>Extention</code>中不可用的API放入你的<code>Embedded Framework</code>，你可以勾选<code>Allow app extension API only</code>选框。</p>
+
+<p><img src="http://wx3.sinaimg.cn/mw690/8f7a6fe0gy1fbzs4nfpb9j20gm07oaao.jpg" alt="image3" /></p>
+
+<h5>-framework的妙用</h5>
+
+<p>有些静态库文件我们只是在<code>DEBUG</code>模式下，调试使用。而不想打入<code>release</code>包中，因为这样会增加安装包的大小，这时可以在<code>buildSetting</code>中的<code>Other Linker Flags</code>下对应的模式中添加需要的库文件，以<code>-framework</code>标记，这样程序编译的时候就会根据里面的标记来编译进执行文件中。</p>
+
+<p><img src="http://wx3.sinaimg.cn/mw690/8f7a6fe0gy1fbzs4mwnfhj20kx08qabd.jpg" alt="image4" /></p>
+
+<p>在使用时可以利用<code>runtime</code>的反射来判断库文件有没有被加载，或者利用<code>buildSetting</code>中的预编译宏<code>Preprocessor Macros</code>来标记。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (NSClassFromString(@"MyFramework") != Nil) {
+</span><span class='line'>    //MyFramework被加载了
+</span><span class='line'>}
+</span><span class='line'>//or
+</span><span class='line'>#if DEBUG
+</span><span class='line'>/*该模式下可使用DEBUG模式下‘Other Linker Flags’
+</span><span class='line'> 通过‘-framework’引入的静态库*/
+</span><span class='line'>#endif
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h6>参考文章</h6>
+
+<ul>
+<li><a href="https://hacking-ios.cocoagarage.com/working-with-a-static-library-framework-vs-embedded-framework-9ca7cd77b4f9#.ign0m484w">https://hacking-ios.cocoagarage.com/working-with-a-static-library-framework-vs-embedded-framework-9ca7cd77b4f9#.ign0m484w</a></li>
+<li><a href="http://www.knowstack.com/framework-vs-library-cocoa-ios/">http://www.knowstack.com/framework-vs-library-cocoa-ios/</a></li>
+<li><a href="http://stackoverflow.com/questions/27015154/link-binary-with-libraries-vs-embed-frameworks">http://stackoverflow.com/questions/27015154/link-binary-with-libraries-vs-embed-frameworks</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Nullable和__kindof的使用]]></title>
